@@ -1,0 +1,41 @@
+
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# SQLite database
+db.sqlite3
+
+# Logs
+*.log
+
+# IDE folders
+.vscode/
+.idea/
+
+# Environment variables, it has the email +password
+.env
+
+#static files 
+staticfiles
+
+# OS files
+.DS_Store
+Thumbs.db
+
+#readne files 
+
+#Media
+media/
+
+#because file contains the SMTP password and configutrations
+settings.py
+
+
+
