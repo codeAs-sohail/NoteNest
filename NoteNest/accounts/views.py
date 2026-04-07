@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 import bcrypt
-from .serializer import Registerserializer,Profileserializer
+from accounts.serializer import Registerserializer,Profileserializer
 from .models import Userregister,Profile
 from .helper import get_user_from_token
 from rest_framework.permissions import IsAuthenticated

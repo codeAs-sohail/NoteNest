@@ -20,7 +20,7 @@ class Userregister(models.Model):
     
     
 class Profile(models.Model):
-    user=models.ForeignKey(Userregister, on_delete=models.CASCADE)
+    user=models.OneToOneField(Userregister, on_delete=models.CASCADE)
     username=models.CharField(max_length=100)
     university=models.CharField(max_length=100)
     bio=models.TextField(max_length=200)
