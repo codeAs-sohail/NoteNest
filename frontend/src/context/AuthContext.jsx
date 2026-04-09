@@ -101,7 +101,7 @@ export function AuthProvider({ children }) {
     const refresh = localStorage.getItem(STORAGE_REFRESH)
     try {
       if (refresh) {
-        await api.post('/Logout/', { refresh })
+        await api.post('Logout/', { refresh })
       }
     } catch {
       /* still clear session locally */

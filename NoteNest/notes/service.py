@@ -4,7 +4,7 @@ from rest_framework.exceptions import AuthenticationFailed,ValidationError,NotFo
 from .helper import get_user_from_token
 from .repository import noteRepository
 from accounts.models import Profile
-from .models import Notes
+from .models import Notes,Notification,Comments
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 class Noteservice:
@@ -79,7 +79,7 @@ class Noteservice:
         
         
             
-    def get_notes(self,request,id):
+    def get_notes(self,request,id):# one specific note
         user_id,auth_error=get_user_from_token(request)
        
         if auth_error:
@@ -91,7 +91,7 @@ class Noteservice:
             raise ValidationError("user not found ! ",status=status.HTTP_404_NOT_FOUND)
         return data        
 
-    def delete_note(self,request,id):
+    def delete_note(self,request,id):#delet specific note ONLY ADMIN 
         user_id,auth_error=get_user_from_token(request)
         if auth_error:
             raise AuthenticationFailed("Invalid Token or Expired  ")
@@ -102,7 +102,7 @@ class Noteservice:
         data.delete()
         return "Deleted Sucessfully !"
     
-    def get_all_notes(self,request):
+    def get_all_notes(self,request):#displays all note of sepcific user 
         user_id,auth_error=get_user_from_token(request)
         if auth_error:
             raise AuthenticationFailed("Invalid Token or Expired Token !")
@@ -112,4 +112,80 @@ class Noteservice:
         if not note:
             raise NotFound("Notes Not Found !")
         return note 
+    
+    
+    def explore_notes(self,request):# Displays all notes for admin dashboard
+        user_id,auth_error=get_user_from_token(request)
+        if auth_error:
+            raise AuthenticationFailed("Invalid Token or Expired Token !")
+        
+        note=Notes.objects.exclude(user_id=user_id)
+        if not note:
+            raise NotFound("Notes Not Found !")
+        
+        query_params=request.query_params
+         
+        if title := query_params.get('title'):
+            note=note.filter(title__icontains=title)
+        
+        if subject :=query_params.get('subject'):
+            note=note.filter(subject__icontains=subject)
+        if university :=query_params.get('university'):
+            note=note.filter(university__icontains=university)
+                        
+        return note
+    
+    def create_like(self,request,id):#when  user click like button
+        
+        user_id,auth_error=get_user_from_token(request)
+        if auth_error:
+            raise Exception((auth_error))
+        if not user_id:
+            raise AuthenticationFailed("Invalid Token or Expired Token")
+        like=self.repo.create_like_repo(request,user_id,id)
+        # if not like:
+        #     raise Exception("like from service didn't received data !")
+        print("like from service has been send")
+        return like
 
+        
+    def get_all_likes(self,request):# all likes to display as a notification 
+        user_id,auth_error=get_user_from_token(request)
+        if auth_error:
+            raise Exception(auth_error)
+        if not user_id:
+            raise Exception("Invalid Token or Expired Token !")
+        
+        data=Notification.objects.filter(receiver_id=user_id)
+        if not data:
+            raise NotFound("Data Not Found !")
+        print(data.values)
+        return data
+    
+    def create_comment(self,request,id):# everyone can create comment 
+        user_id,auth_error=get_user_from_token(request)
+        if auth_error:
+            raise Exception(auth_error)
+        if not user_id:
+            raise Exception("Invalid Token or Expired Token !")
+        comment=self.repo.create_comment_repo(request,user_id,id)
+        return comment
+        
+    def get_comment(self,request,id):# getting one sepcific comment
+        data=Comments.objects.filter(note_id=id)
+        if not data:
+            raise NotFound("comments not found !")
+        
+        return data
+    
+    def delete_comment(self,request,id):# Deletes one specific comment
+        user_id,auth_error=get_user_from_token(request)
+        if auth_error:
+            raise Exception(auth_error)
+        if not user_id:
+            raise Exception("Invalid Token or Expired Token !")
+        
+        comment=self.repo.delete_comment_repo(request,user_id,id)
+        return comment
+        
+        

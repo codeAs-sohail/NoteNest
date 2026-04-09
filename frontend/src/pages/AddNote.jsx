@@ -9,8 +9,6 @@ export default function AddNote() {
   const navigate = useNavigate()
   const { showToast } = useToast()
 
-  const [profileId, setProfileId] = useState('')
-  const [profileLoading, setProfileLoading] = useState(true)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [subject, setSubject] = useState('')
@@ -20,20 +18,6 @@ export default function AddNote() {
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await api.get('/Profile/')
-        if (res.data?.id) setProfileId(res.data.id)
-      } catch (err) {
-        console.warn('Profile fetch failed:', err?.response?.status)
-      } finally {
-        setProfileLoading(false)
-      }
-    }
-    fetchProfile()
-  }, [])
 
   const handleDrop = (e) => {
     e.preventDefault()
@@ -63,25 +47,29 @@ export default function AddNote() {
     setLoading(true)
     try {
       const formData = new FormData()
-      if (profileId) formData.append('profile_id', profileId)
-      formData.append('title', title)
-      formData.append('description', description)
-      formData.append('subject', subject)
-      if (university.trim()) formData.append('university', university)
+      formData.append('title', title.trim())
+      formData.append('description', description.trim())
+      formData.append('subject', subject.trim())
+      formData.append('university', university.trim() || '')
       formData.append('pdf_file', pdfFile)
 
-      await api.post('/notes/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
+      const res = await api.post('notes/', formData)
+
+      // Backend returns HTTP 200 but includes an 'error' key if it caught an exception
+      if (res.data && res.data.error) {
+        setError(typeof res.data.error === 'string' ? res.data.error : 'Failed to create note.')
+        setLoading(false)
+        return
+      }
 
       setSuccess(true)
       showToast('Note created successfully!', 'success')
-      setTimeout(() => navigate('/dashboard'), 1400)
+      setTimeout(() => navigate('/dashboard'), 1200)
     } catch (err) {
       setError(
         err.response?.data?.error ||
           err.response?.data?.detail ||
-          'Failed to create note. Please try again.'
+          'Failed to create note. Please check your connection and try again.'
       )
     } finally {
       setLoading(false)
@@ -99,54 +87,7 @@ export default function AddNote() {
         <p className="page-header__sub">Share your knowledge with the NoteNest community</p>
       </div>
 
-      {/* Author info bar */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1.5rem',
-          padding: '1rem 1.25rem',
-          background: 'rgba(108,99,255,0.08)',
-          border: '1px solid rgba(108,99,255,0.2)',
-          borderRadius: 'var(--radius)',
-          marginBottom: '1.75rem',
-          flexWrap: 'wrap',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <div
-            style={{
-              width: 38,
-              height: 38,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg,var(--primary),var(--accent))',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 800,
-              color: '#fff',
-              fontSize: '1rem',
-              flexShrink: 0,
-            }}
-          >
-            {(user?.username || 'U').charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Author</div>
-            <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: '0.95rem' }}>{user?.username || '—'}</div>
-          </div>
-        </div>
-        <div style={{ width: 1, height: 36, background: 'var(--border)', flexShrink: 0 }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ fontSize: '1.3rem' }}>🪪</span>
-          <div>
-            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Profile ID</div>
-            <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: '0.95rem' }}>
-              {profileLoading ? <span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Loading…</span> : `#${profileId || '—'}`}
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Banners */}
 
       {/* Banners */}
       {error && (

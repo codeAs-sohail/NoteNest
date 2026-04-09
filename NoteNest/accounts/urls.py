@@ -3,10 +3,10 @@ from .views import Register,Login,Logout,Userprofile
 
 
 urlpatterns = [
-    path('Register/',Register.as_view(),name='register'),
-    path('Login/',Login.as_view(),name='login'),
-    path('Logout/',Logout.as_view(),name="logout"),
-    path('Profile/',Userprofile.as_view(),name="profile")
+    path('api/auth/register/',Register.as_view(),name='register'),
+    path('api/auth/login/',Login.as_view(),name='login'),
+    path('api/auth/logout/',Logout.as_view(),name="logout"),
+    path('api/auth/profile/',Userprofile.as_view(),name="profile")
     
 ]
 

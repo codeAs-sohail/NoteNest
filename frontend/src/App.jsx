@@ -2,9 +2,11 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import Navbar from './components/Navbar.jsx'
 import PrivateRoute from './components/PrivateRoute.jsx'
 import Dashboard from './pages/Dashboard.jsx'
+import AddNote from './pages/AddNote.jsx'
 import Profile from './pages/Profile.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
+import Explore from './pages/Explore.jsx'
 import { useAuth } from './context/AuthContext.jsx'
 import Toast from './components/Toast.jsx'
 
@@ -54,6 +56,26 @@ export default function App() {
           <Shell>
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          </Shell>
+        }
+      />
+      <Route
+        path="/add-note"
+        element={
+          <Shell>
+            <PrivateRoute>
+              <AddNote />
+            </PrivateRoute>
+          </Shell>
+        }
+      />
+      <Route
+        path="/explore"
+        element={
+          <Shell>
+            <PrivateRoute>
+              <Explore />
             </PrivateRoute>
           </Shell>
         }
