@@ -21,12 +21,14 @@ def register_email(sender, instance, created, **kwargs):
 #Profile creation 
 @receiver(post_save,sender=Userregister)
 def user_profile(sender,instance,created,**kwargs):
-    Profile.objects.create(
-        user_id=instance.id,
-        username=instance.username,
-        university=instance.university,
-        bio=instance.bio,
-        email=instance.email,
-        year=instance.year
-    )
+    if created:
+            
+        Profile.objects.create(
+            user_id=instance.id,
+            username=instance.username,
+            university=instance.university,
+            bio=instance.bio,
+            email=instance.email,
+            year=instance.year
+        )
 

@@ -5,6 +5,7 @@ from django.db.models import F
 class noteRepository:
     
     def create_note_repo(self,user_id,data,files,prof_id):
+        note=None #here note is defined in if condition ,<- this fails means note variable doesn't exist , ultimately it will crash
      
         if not prof_id:
             raise NotFound("Profile id not found !") 
@@ -29,7 +30,7 @@ class noteRepository:
     
     
     def update_note_repo(self,request,files,user_id,id):
-        user=Notes.objects.get(user_id=user_id,id=id)
+        user=Notes.objects.filter(user_id=user_id,id=id)
         
         try:
             

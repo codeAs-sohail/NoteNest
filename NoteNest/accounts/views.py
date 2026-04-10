@@ -97,8 +97,9 @@ class Userprofile(APIView):
     
     def put(self,request):
             user_id, auth_error = get_user_from_token(request)
+            
             if auth_error:
-                return auth_error
+                return Response({"error":auth_error})
             user = Profile.objects.filter(user_id=user_id).first()
             if not user:
                 return Response({"error":"User profile not found"}, status=status.HTTP_404_NOT_FOUND)

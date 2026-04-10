@@ -88,7 +88,7 @@ class Notesexplore(APIView):
         result = paginator.paginate_queryset(note, request)
         
         
-        serialized=noteSerializer(note,many=True)
+        serialized=noteSerializer(result,many=True)
         if serialized:
              return paginator.get_paginated_response(serialized.data)
         else:
