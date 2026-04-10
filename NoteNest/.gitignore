@@ -34,8 +34,7 @@ Thumbs.db
 #Media
 media/
 
-#because file contains the SMTP password and configutrations
-settings.py
+
 
 
 
