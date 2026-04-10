@@ -1,4 +1,4 @@
-from .models import Notes,Profile,Likes,Comments
+from .models import Notes,Profile,Likes,Comments,Notification
 from rest_framework.exceptions import NotFound,ValidationError
 from rest_framework.response import Response
 from django.db.models import F
@@ -30,17 +30,27 @@ class noteRepository:
     
     
     def update_note_repo(self,request,files,user_id,id):
-        user=Notes.objects.filter(user_id=user_id,id=id)
+        # We use .first() here because .filter() returns a list, and we need a single object
+        note = Notes.objects.filter(user_id=user_id, id=id).first()
         
+        if not note:
+            raise NotFound("Note not found or you don't have permission to edit it.")
+
         try:
             
-            user.title=request.data.get('title', user.title)
-            user.description=request.data.get('description', user.description)
-            user.subject=request.data.get('subject',user.subject)
-            user.university=request.data.get('university',user.university)
-            user.pdf_file=files.get('pdf_file',user.pdf_file)
-            user.save()
-            return user
+            note.title = request.data.get('title', note.title)
+            note.description = request.data.get('description', note.description)
+            note.subject = request.data.get('subject', note.subject)
+            note.university = request.data.get('university', note.university)
+            note.pdf_file = files.get('pdf_file', note.pdf_file)
+            note.save()
+
+            #the note title should be synced to other tables 
+            new_title = note.title
+            Likes.objects.filter(note_id=id).update(note_title=new_title)
+            Notification.objects.filter(note_id=id).update(note_title=new_title)
+
+            return note
         except Exception as err:
             raise ValidationError(str(err))
             
