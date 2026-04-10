@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Notes,Likes,Notification,Comments
+from notes.models import Notes,Likes,Notification,Comments
 @admin.register(Notes)
 class NotesAdmin(admin.ModelAdmin):
     list_display=['user','title','description','subject','university','download_count', 'created_at']
@@ -17,6 +17,6 @@ class NotificationAdmin(admin.ModelAdmin):
     
 @admin.register(Comments)
 class CommentAdmin(admin.ModelAdmin):
-    list_display=['user','note','sender','comment','receiver']
+    list_display=['user','note','sender','comment']
     search_fields=['comment']
     

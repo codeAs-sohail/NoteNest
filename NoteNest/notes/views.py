@@ -1,14 +1,17 @@
 from rest_framework.views import APIView
-from .service import Noteservice
-from .repository import noteRepository
-from .Serializers import noteSerializer,likeserializer,NotificationSerializer,Commentserializer
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from notes.service import Noteservice
+from notes.repository import noteRepository
+from notes.Serializers import noteSerializer, likeserializer, NotificationSerializer, Commentserializer, DownloadSerializer
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Notes
+from notes.models import Notes
 from rest_framework.exceptions import NotFound
 from rest_framework.exceptions import ValidationError,AuthenticationFailed,NotFound
 from rest_framework.pagination import PageNumberPagination
-class Notes(APIView):
+class NoteDetail(APIView):
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
     
     def get(self,request,id):
         service=Noteservice()
@@ -93,7 +96,7 @@ class Notesexplore(APIView):
              return paginator.get_paginated_response(serialized.data)
         else:
             raise ValidationError("Data is not valid !",status=status.HTTP_204_NO_CONTENT)
-        
+         
         
 class Likes(APIView):
     
@@ -165,3 +168,39 @@ class Comments(APIView):
         
         
         
+
+class Downloads(APIView):
+    def post(self, request, id):
+        service = Noteservice()
+        try:
+            download = service.record_download(request, id)
+            if not download:
+                return Response({"error": "Failed to record download"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            serializer = DownloadSerializer(download)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        service = Noteservice()
+        try:
+            downloads = service.get_user_downloads(request)
+            serializer = DownloadSerializer(downloads, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class notification(APIView):
+    def get(self,request):
+        service=Noteservice()
+        notifi=service.get_notification(request)
+        if not notifi:
+            return Response({"error":"notification didn't got data !"})
+        serialized=NotificationSerializer(notifi,many=True)
+        if serialized:
+            return Response(serialized.data,status=status.HTTP_200_OK)
+        else:
+            return Response("serialized data is not valid !",status=status.HTTP_400_BAD_REQUEST)

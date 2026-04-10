@@ -7,6 +7,7 @@ class Userregister(models.Model):
     email=models.EmailField(unique=True,max_length=70)
     
     year_choices=[
+        
     ('2020', '2020'),
     ('2021', '2021'),
     ('2022', '2022'),

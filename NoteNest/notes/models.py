@@ -46,3 +46,15 @@ class Comments(models.Model):
     
     class Meta:
         unique_together=('user','note')
+
+
+
+class Download(models.Model):
+    user = models.ForeignKey(Userregister, on_delete=models.CASCADE, related_name='user_downloads')
+    note = models.ForeignKey(Notes, on_delete=models.CASCADE, related_name='note_downloads')
+    note_title = models.CharField(max_length=100)          
+    note_subject = models.CharField(max_length=100, blank=True, null=True)
+    downloaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-downloaded_at']   #recent download will be displayed first 

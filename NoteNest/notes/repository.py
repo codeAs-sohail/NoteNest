@@ -1,4 +1,4 @@
-from .models import Notes,Profile,Likes,Comments,Notification
+from notes.models import Notes,Profile,Likes,Comments,Notification
 from rest_framework.exceptions import NotFound,ValidationError
 from rest_framework.response import Response
 from django.db.models import F

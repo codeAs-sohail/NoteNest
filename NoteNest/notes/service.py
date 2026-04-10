@@ -4,9 +4,10 @@ from rest_framework.exceptions import AuthenticationFailed,ValidationError,NotFo
 from .helper import get_user_from_token
 from .repository import noteRepository
 from accounts.models import Profile
-from .models import Notes,Notification,Comments
+from .models import Notes,Notification,Comments,Download
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from django.db.models import F
 class Noteservice:
     def __init__(self):
         self.repo=noteRepository()
@@ -187,5 +188,44 @@ class Noteservice:
         
         comment=self.repo.delete_comment_repo(request,user_id,id)
         return comment
+
+    def get_user_downloads(self, request):
+        user_id, auth_error = get_user_from_token(request)
+        if auth_error:
+            raise AuthenticationFailed("No authentic user found")
+        return Download.objects.filter(user_id=user_id)
+
+    def record_download(self, request, note_id):
+        user_id, auth_error = get_user_from_token(request)
+        if auth_error:
+            raise AuthenticationFailed("Authentication required")
+        
+        note = get_object_or_404(Notes, id=note_id)
+        
+        
+        download = Download.objects.create(
+            user_id=user_id,
+            note=note,
+            note_title=note.title,
+            note_subject=note.subject
+        )
+        
+        note.download_count = F('download_count') + 1
+        note.save()
+        
+        return download
+    
+    def get_notification(self,request):
+        user_id,auth_error=get_user_from_token(request)
+        if auth_error:
+            raise Exception(auth_error)
+        if not user_id:
+            raise Exception("Invalid Token or Expired Token !")
+        
+        data=Notification.objects.filter(receiver_id=user_id)
+        if not data:
+            raise NotFound("Data Not Found !")
+        print(data.values)
+        return data
         
         
