@@ -47,7 +47,7 @@ export default function Register() {
     setFormError('')
     setLoading(true)
     try {
-      await api.post('/Register/', form)
+      await api.post('auth/register/', form)
       showToast('Account created! Please sign in. 🎉', 'success')
       navigate('/login', { replace: true, state: { message: 'Registration successful! Please sign in.' } })
     } catch (err) {

@@ -1,225 +1,200 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import api from '../api/axios.js'
-import { useAuth } from '../context/AuthContext.jsx'
-import { useToast } from '../context/ToastContext.jsx'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  UploadCloud, FileText, CheckCircle, Loader2, BookOpen, School, File
+} from 'lucide-react';
+import noteService from '../services/noteService';
+import toast from 'react-hot-toast';
 
-export default function AddNote() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
-  const { showToast } = useToast()
+const AddNote = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    title: '', description: '', subject: '', university: ''
+  });
+  const [file, setFile] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [subject, setSubject] = useState('')
-  const [university, setUniversity] = useState('')
-  const [pdfFile, setPdfFile] = useState(null)
-  const [dragOver, setDragOver] = useState(false)
-  const [error, setError] = useState(null)
-  const [success, setSuccess] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleFile = (selectedFile) => {
+    if (selectedFile?.type !== 'application/pdf') {
+      toast.error('System accepts PDF format only.');
+      return;
+    }
+    setFile(selectedFile);
+  };
 
   const handleDrop = (e) => {
-    e.preventDefault()
-    setDragOver(false)
-    const file = e.dataTransfer.files[0]
-    if (file && file.type === 'application/pdf') {
-      setPdfFile(file)
-      setError(null)
-    } else {
-      setError('Only PDF files are accepted.')
-    }
-  }
+    e.preventDefault(); setIsDragging(false);
+    handleFile(e.dataTransfer.files[0]);
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    if (!file) return toast.error('Please attach a PDF file before uploading.');
 
-    if (!title.trim() || !description.trim() || !subject.trim()) {
-      setError('Title, Description and Subject are required.')
-      return
-    }
-    if (!pdfFile) {
-      setError('Please attach a PDF file.')
-      return
-    }
+    const uploadData = new FormData();
+    Object.keys(formData).forEach(key => uploadData.append(key, formData[key]));
+    uploadData.append('pdf_file', file);
+    uploadData.append('download_count', 0); // Initialize
 
-    setLoading(true)
+    setIsUploading(true);
+    // Fake progress for UX
+    const interval = setInterval(() => {
+      setUploadProgress(p => (p < 90 ? p + 10 : p));
+    }, 200);
+
     try {
-      const formData = new FormData()
-      formData.append('title', title.trim())
-      formData.append('description', description.trim())
-      formData.append('subject', subject.trim())
-      formData.append('university', university.trim() || '')
-      formData.append('pdf_file', pdfFile)
-
-      const res = await api.post('notes/', formData)
-
-      // Backend returns HTTP 200 but includes an 'error' key if it caught an exception
-      if (res.data && res.data.error) {
-        setError(typeof res.data.error === 'string' ? res.data.error : 'Failed to create note.')
-        setLoading(false)
-        return
-      }
-
-      setSuccess(true)
-      showToast('Note created successfully!', 'success')
-      setTimeout(() => navigate('/dashboard'), 1200)
-    } catch (err) {
-      setError(
-        err.response?.data?.error ||
-          err.response?.data?.detail ||
-          'Failed to create note. Please check your connection and try again.'
-      )
-    } finally {
-      setLoading(false)
+      await noteService.createNote(uploadData);
+      clearInterval(interval);
+      setUploadProgress(100);
+      toast.success('Note uploaded successfully!');
+      setTimeout(() => navigate('/'), 800);
+    } catch (error) {
+      clearInterval(interval);
+      toast.error('Upload failed. Please try again.');
+      setIsUploading(false);
     }
-  }
+  };
 
   return (
-    <div className="add-note-page">
-      {/* Header */}
-      <div className="page-header">
-        <button className="page-header__back" onClick={() => navigate('/dashboard')}>
-          ← Back to Dashboard
-        </button>
-        <h1 className="page-header__title">📝 Create a Note</h1>
-        <p className="page-header__sub">Share your knowledge with the NoteNest community</p>
-      </div>
+    <div className="w-full flex items-center justify-center min-h-[calc(100vh-200px)]">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+        className="w-full max-w-[1000px] bg-[#0f172a]/80 backdrop-blur-xl border border-white/5 rounded-[40px] shadow-2xl overflow-hidden flex flex-col lg:flex-row relative"
+      >
+        {/* Abstract BG */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
 
-      {/* Banners */}
+        {/* Left Side: Upload Zone */}
+        <div className="w-full lg:w-5/12 p-8 lg:p-12 border-b lg:border-b-0 lg:border-r border-white/5 bg-[#060c1c]/40 flex flex-col justify-center">
+           <div className="mb-8">
+              <h2 className="text-3xl font-black text-white mb-2">Upload Note</h2>
+              <p className="text-slate-400 font-medium text-sm leading-relaxed">Share your notes with the community. Please ensure documents do not contain personal info.</p>
+           </div>
 
-      {/* Banners */}
-      {error && (
-        <div className="banner banner--error" style={{ marginBottom: '1.25rem' }}>
-          ⚠️ {error}
+           <div 
+             className={`relative h-64 border-2 border-dashed rounded-[32px] flex flex-col items-center justify-center p-6 text-center transition-all duration-300 overflow-hidden ${
+               isDragging ? 'border-indigo-400 bg-indigo-500/10' : file ? 'border-teal-500/50 bg-teal-500/5' : 'border-slate-800 bg-[#0f172a] hover:border-indigo-500/50 hover:bg-[#0f172a]/80'
+             }`}
+             onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+             onDragLeave={() => setIsDragging(false)}
+             onDrop={handleDrop}
+           >
+             <input 
+               type="file" 
+               accept="application/pdf" 
+               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+               onChange={(e) => handleFile(e.target.files[0])}
+               disabled={isUploading}
+             />
+             
+             <AnimatePresence mode="wait">
+               {file ? (
+                 <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="flex flex-col items-center z-0">
+                    <div className="w-16 h-16 bg-teal-500/20 text-teal-400 rounded-2xl flex items-center justify-center mb-4 border border-teal-500/30">
+                       <CheckCircle className="w-8 h-8" />
+                    </div>
+                    <p className="font-black text-white text-lg truncate w-full px-4">{file.name}</p>
+                    <p className="text-xs font-bold text-teal-400 uppercase tracking-widest mt-1">Ready for Upload</p>
+                 </motion.div>
+               ) : (
+                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center z-0">
+                    <div className="w-16 h-16 bg-white/5 text-slate-400 rounded-2xl flex items-center justify-center mb-4 border border-slate-800">
+                       <UploadCloud className="w-8 h-8" />
+                    </div>
+                    <p className="font-bold text-slate-300">Drag & Drop PDF Document</p>
+                    <p className="text-sm font-medium text-slate-500 mt-1 mb-4">or click to browse filesystem</p>
+                    <span className="text-[10px] font-black uppercase tracking-widest bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700">Max 50MB</span>
+                 </motion.div>
+               )}
+             </AnimatePresence>
+           </div>
         </div>
-      )}
-      {success && (
-        <div className="banner banner--success" style={{ marginBottom: '1.25rem' }}>
-          ✅ Note created! Redirecting to dashboard…
+
+        {/* Right Side: Form */}
+        <div className="w-full lg:w-7/12 p-8 lg:p-12 relative z-10">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Note Title</label>
+              <div className="relative group">
+                <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-violet-400 transition-colors" />
+                <input 
+                  type="text" name="title" required placeholder="Machine Learning Lecture 01"
+                  className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all font-medium text-sm"
+                  value={formData.title} onChange={handleInputChange} disabled={isUploading}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Description</label>
+              <div className="relative group">
+                <File className="absolute left-4 top-4 w-5 h-5 text-slate-500 group-focus-within:text-violet-400 transition-colors" />
+                <textarea 
+                  name="description" placeholder="Notes covering the foundations of neural networks..."
+                  className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all font-medium text-sm min-h-[100px] resize-none"
+                  value={formData.description} onChange={handleInputChange} disabled={isUploading}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Subject</label>
+                <div className="relative group">
+                  <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-violet-400 transition-colors" />
+                  <input 
+                    type="text" name="subject" required placeholder="Computer Science"
+                    className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all font-medium text-sm"
+                    value={formData.subject} onChange={handleInputChange} disabled={isUploading}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">University</label>
+                <div className="relative group">
+                  <School className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-violet-400 transition-colors" />
+                  <input 
+                    type="text" name="university" placeholder="MIT"
+                    className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all font-medium text-sm"
+                    value={formData.university} onChange={handleInputChange} disabled={isUploading}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4">
+               {isUploading ? (
+                 <div className="w-full bg-[#060c1c] rounded-2xl p-4 border border-indigo-500/30 overflow-hidden relative">
+                    <div className="absolute top-0 left-0 h-full bg-gradient-to-r from-indigo-600 to-violet-600 transition-all duration-300 ease-out z-0" style={{ width: `${uploadProgress}%` }}></div>
+                    <div className="relative z-10 flex items-center justify-between text-white font-bold text-sm">
+                       <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</span>
+                       <span>{uploadProgress}%</span>
+                    </div>
+                 </div>
+               ) : (
+                <button 
+                  type="submit" 
+                  disabled={!file}
+                  className="w-full bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-400 hover:to-violet-500 text-white py-4 rounded-2xl font-black text-lg transition-all shadow-[0_0_30px_-5px_rgba(99,102,241,0.5)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2"
+                >
+                  <UploadCloud className="w-5 h-5" /> Upload Note
+                </button>
+               )}
+            </div>
+
+          </form>
         </div>
-      )}
 
-      {/* Form */}
-      <div className="form-card">
-        <form onSubmit={handleSubmit} className="form">
-          <div className="row-2">
-            <div className="field">
-              <label className="field__label">
-                Title <span className="req">*</span>
-              </label>
-              <input
-                id="note-title"
-                className="input"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="E.g. Database Design Notes"
-                maxLength={100}
-                required
-              />
-            </div>
-            <div className="field">
-              <label className="field__label">
-                Subject <span className="req">*</span>
-              </label>
-              <input
-                id="note-subject"
-                className="input"
-                type="text"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                placeholder="E.g. Computer Science"
-                maxLength={100}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="field">
-            <label className="field__label">University <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></label>
-            <input
-              id="note-university"
-              className="input"
-              type="text"
-              value={university}
-              onChange={(e) => setUniversity(e.target.value)}
-              placeholder="E.g. MIT, Stanford…"
-              maxLength={100}
-            />
-          </div>
-
-          <div className="field">
-            <label className="field__label">
-              Description <span className="req">*</span>
-            </label>
-            <textarea
-              id="note-description"
-              className="input input--textarea"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Summarise what these notes cover…"
-              rows={4}
-              required
-            />
-          </div>
-
-          {/* PDF Drop Zone */}
-          <div className="field">
-            <label className="field__label">
-              PDF File <span className="req">*</span>
-            </label>
-            <div
-              className={`upload-zone ${dragOver ? 'upload-zone--active' : ''} ${pdfFile ? 'upload-zone--selected' : ''}`}
-              onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={handleDrop}
-              onClick={() => document.getElementById('pdf_input').click()}
-            >
-              <input
-                id="pdf_input"
-                type="file"
-                accept=".pdf"
-                style={{ display: 'none' }}
-                onChange={(e) => {
-                  setPdfFile(e.target.files[0] || null)
-                  setError(null)
-                }}
-              />
-              {pdfFile ? (
-                <>
-                  <div className="upload-zone__icon">📄</div>
-                  <p className="upload-zone__filename">{pdfFile.name}</p>
-                  <p className="upload-zone__hint">
-                    {(pdfFile.size / 1024 / 1024).toFixed(2)} MB — click to change
-                  </p>
-                </>
-              ) : (
-                <>
-                  <div className="upload-zone__icon">☁️</div>
-                  <p className="upload-zone__text">
-                    Drag & drop your PDF here, or <span className="upload-zone__browse">browse</span>
-                  </p>
-                  <p className="upload-zone__hint">Only .pdf files are accepted</p>
-                </>
-              )}
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="btn btn--primary btn--lg btn--block"
-            disabled={loading || success}
-          >
-            {loading ? (
-              <><span className="spinner" /> Creating…</>
-            ) : (
-              '🚀 Create Note'
-            )}
-          </button>
-        </form>
-      </div>
+      </motion.div>
     </div>
-  )
-}
+  );
+};
+
+export default AddNote;

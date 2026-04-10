@@ -1,103 +1,66 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
-import Navbar from './components/Navbar.jsx'
-import PrivateRoute from './components/PrivateRoute.jsx'
-import Dashboard from './pages/Dashboard.jsx'
-import AddNote from './pages/AddNote.jsx'
-import Profile from './pages/Profile.jsx'
-import Login from './pages/Login.jsx'
-import Register from './pages/Register.jsx'
-import Explore from './pages/Explore.jsx'
-import { useAuth } from './context/AuthContext.jsx'
-import Toast from './components/Toast.jsx'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
-function Shell({ children }) {
+// Layouts
+import RootLayout from './layouts/RootLayout';
+
+// Pages
+import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
+import Home from './pages/Home';
+import Explore from './pages/Explore';
+import Profile from './pages/Profile';
+import AddNote from './pages/AddNote';
+import NoteDetail from './pages/NoteDetail';
+
+import { NotificationProvider } from './context/NotificationContext';
+
+function App() {
   return (
-    <>
-      <Navbar />
-      <main className="main">{children}</main>
-      <Toast />
-    </>
-  )
+    <Router>
+      <AuthProvider>
+        <NotificationProvider>
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#ffffff',
+                color: '#0f172a',
+                borderRadius: '16px',
+                padding: '16px',
+                boxShadow: '0 10px 40px -10px rgba(0,0,0,0.1)',
+                fontWeight: '600',
+              },
+            }} 
+          />
+          <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<RootLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/notes/:id" element={<NoteDetail />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/create" element={<AddNote />} />
+              <Route path="/notifications" element={<Profile />} />
+              <Route path="/settings" element={<Profile />} />
+            </Route>
+          </Route>
+
+          {/* Catch all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </NotificationProvider>
+      </AuthProvider>
+    </Router>
+  );
 }
 
-export default function App() {
-  const { isAuthenticated, ready } = useAuth()
-  const redirectTarget = ready ? (isAuthenticated ? '/dashboard' : '/login') : '/login'
-
-  return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <Shell>
-            <Navigate to={redirectTarget} replace />
-          </Shell>
-        }
-      />
-      <Route
-        path="/login"
-        element={
-          <Shell>
-            {isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />}
-          </Shell>
-        }
-      />
-      <Route
-        path="/register"
-        element={
-          <Shell>
-            {isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />}
-          </Shell>
-        }
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <Shell>
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          </Shell>
-        }
-      />
-      <Route
-        path="/add-note"
-        element={
-          <Shell>
-            <PrivateRoute>
-              <AddNote />
-            </PrivateRoute>
-          </Shell>
-        }
-      />
-      <Route
-        path="/explore"
-        element={
-          <Shell>
-            <PrivateRoute>
-              <Explore />
-            </PrivateRoute>
-          </Shell>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <Shell>
-            <PrivateRoute>
-              <Profile />
-            </PrivateRoute>
-          </Shell>
-        }
-      />
-      <Route
-        path="*"
-        element={
-          <Shell>
-            <Navigate to={redirectTarget} replace />
-          </Shell>
-        }
-      />
-    </Routes>
-  )
-}
+export default App;

@@ -1,140 +1,86 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import api from '../api/axios.js'
+import { createContext, useContext, useState, useEffect } from 'react';
+import api from '../api/axios';
+import { useNavigate } from 'react-router-dom';
 
-const AuthContext = createContext(null)
+const AuthContext = createContext();
 
-const STORAGE_ACCESS = 'notenest_access'
-const STORAGE_REFRESH = 'notenest_refresh'
-const STORAGE_USER = 'notenest_user'
-
-function decodeAccessToken(token) {
-  if (!token) return null
-  try {
-    const part = token.split('.')[1]
-    const base64 = part.replace(/-/g, '+').replace(/_/g, '/')
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=')
-    const json = atob(padded)
-    return JSON.parse(json)
-  } catch {
-    return null
-  }
-}
-
-function isTokenExpired(token) {
-  const payload = decodeAccessToken(token)
-  if (!payload?.exp) return true
-  return Date.now() / 1000 >= payload.exp
-}
-
-function userFromPayload(payload) {
-  if (!payload) return null
-  const username = payload.username
-  const email = payload.email
-  const user_id = payload.user_id ?? payload.userId ?? null
-  if (!username && !email && !user_id) return null
-  return { username: username || '', email: email || '', user_id }
-}
-
-export function AuthProvider({ children }) {
-  const navigate = useNavigate()
-  const [user, setUser] = useState(null)
-  const [ready, setReady] = useState(false)
-
-  const clearStoredAuth = useCallback(() => {
-    localStorage.removeItem(STORAGE_ACCESS)
-    localStorage.removeItem(STORAGE_REFRESH)
-    localStorage.removeItem(STORAGE_USER)
-    setUser(null)
-  }, [])
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const onExpired = () => setUser(null)
-    window.addEventListener('notenest:auth-expired', onExpired)
-    return () => window.removeEventListener('notenest:auth-expired', onExpired)
-  }, [])
-
-  useEffect(() => {
-    const access = localStorage.getItem(STORAGE_ACCESS)
-    const stored = localStorage.getItem(STORAGE_USER)
-    if (!access || isTokenExpired(access)) {
-      clearStoredAuth()
-      setReady(true)
-      return
-    }
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored))
-      } catch {
-        setUser(userFromPayload(decodeAccessToken(access)))
+    const checkAuth = async () => {
+      const token = localStorage.getItem('notenest_access');
+      if (token) {
+        try {
+          const response = await api.get('auth/profile/');
+          setUser(response.data);
+        } catch (error) {
+          console.error("Auth check failed:", error);
+          logout();
+        }
       }
-    } else {
-      setUser(userFromPayload(decodeAccessToken(access)))
-    }
-    setReady(true)
-  }, [clearStoredAuth])
+      setLoading(false);
+    };
+    checkAuth();
+  }, []);
 
-  const login = useCallback((access, refresh, profile = null) => {
-    localStorage.setItem(STORAGE_ACCESS, access)
-    localStorage.setItem(STORAGE_REFRESH, refresh)
-    const payload = decodeAccessToken(access)
-    const fromToken = userFromPayload(payload)
-    const base = fromToken || {
-      username: '',
-      email: '',
-      user_id: payload?.user_id ?? payload?.userId ?? null,
-    }
-    const next = profile ? { ...base, ...profile } : base
-    localStorage.setItem(STORAGE_USER, JSON.stringify(next))
-    setUser(next)
-  }, [])
+  const login = async (username, email, password) => {
+    const response = await api.post('auth/login/', { username, email, password });
+    const { access, refresh } = response.data;
+    
+    localStorage.setItem('notenest_access', access);
+    localStorage.setItem('notenest_refresh', refresh);
+    
+    const profileRes = await api.get('auth/profile/');
+    setUser(profileRes.data);
+    return response.data;
+  };
 
-  const syncUserProfile = useCallback((profileUpdates) => {
-    setUser((prev) => {
-      const next = { ...(prev || {}), ...(profileUpdates || {}) }
-      localStorage.setItem(STORAGE_USER, JSON.stringify(next))
-      return next
-    })
-  }, [])
+  const register = async (userData) => {
+    return await api.post('auth/register/', userData);
+  };
 
-  const logout = useCallback(async () => {
-    const refresh = localStorage.getItem(STORAGE_REFRESH)
+  const updateProfile = async (profileData) => {
+    const response = await api.put('auth/profile/', profileData);
+    // Refresh user state immediately
+    const userRes = await api.get('auth/profile/');
+    setUser(userRes.data);
+    return response.data;
+  };
+
+  const deleteProfile = async () => {
+    // Delete profile from the backend DB
+    await api.delete('auth/profile/');
+    // Clear all local data
+    localStorage.removeItem('notenest_access');
+    localStorage.removeItem('notenest_refresh');
+    localStorage.removeItem('notenest_liked');
+    localStorage.removeItem('notenest_seen_notifs');
+    setUser(null);
+    // Navigation will be handled by the calling component
+  };
+
+  const logout = async () => {
     try {
+      const refresh = localStorage.getItem('notenest_refresh');
       if (refresh) {
-        await api.post('Logout/', { refresh })
+        await api.post('auth/logout/', { refresh });
       }
-    } catch {
-      /* still clear session locally */
+    } catch (error) {
+      console.error("Logout API failed, continuing local clear", error);
     } finally {
-      clearStoredAuth()
-      navigate('/login', { replace: true })
+      localStorage.removeItem('notenest_access');
+      localStorage.removeItem('notenest_refresh');
+      setUser(null);
     }
-  }, [clearStoredAuth, navigate])
+  };
 
-  const access = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_ACCESS) : null
-  const isAuthenticated = Boolean(
-    ready && access && !isTokenExpired(access) && user && (user.username || user.email)
-  )
+  return (
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, deleteProfile }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
-  const value = useMemo(
-    () => ({
-      user,
-      ready,
-      isAuthenticated,
-      login,
-      syncUserProfile,
-      logout,
-    }),
-    [user, ready, isAuthenticated, login, syncUserProfile, logout]
-  )
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const ctx = useContext(AuthContext)
-  if (!ctx) {
-    throw new Error('useAuth must be used within AuthProvider')
-  }
-  return ctx
-}
+export const useAuth = () => useContext(AuthContext);

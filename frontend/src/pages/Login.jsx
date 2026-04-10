@@ -24,14 +24,7 @@ export default function Login() {
     setError('')
     setLoading(true)
     try {
-      const { data } = await api.post('/Login/', { username, email, password })
-      const access = data.access
-      const refresh = data.refresh
-      if (!access || !refresh) {
-        setError('Invalid response from server.')
-        return
-      }
-      login(access, refresh, { username, email })
+      await login(username, email, password)
       showToast('Logged in successfully! 🎉', 'success')
       navigate('/dashboard', { replace: true })
     } catch (err) {
