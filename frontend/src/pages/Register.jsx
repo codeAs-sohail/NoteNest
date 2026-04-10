@@ -33,7 +33,6 @@ export default function Register() {
   const [formError, setFormError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
-  const [registered, setRegistered] = useState(false)
 
   const errCls = (name) => (fieldErrors[name] ? 'input--error' : '')
 
@@ -49,7 +48,8 @@ export default function Register() {
     setLoading(true)
     try {
       await api.post('auth/register/', form)
-      setRegistered(true)
+      showToast('Account created! Please sign in. 🎉', 'success')
+      navigate('/login', { replace: true, state: { message: 'Registration successful! Please sign in.' } })
     } catch (err) {
       const data = err.response?.data
       if (data?.error && typeof data.error === 'string') {
@@ -64,23 +64,7 @@ export default function Register() {
     }
   }
 
-  if (registered) {
-    return (
-      <div className="page page--centered page--auth">
-        <div className="card card--auth" style={{ maxWidth: '520px', textAlign: 'center' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📧</div>
-          <h1 className="auth-card__title">Check Your Email!</h1>
-          <p className="auth-card__sub" style={{ marginBottom: '2rem' }}>
-            We've sent a verification email to <strong>{form.email}</strong>. 
-            Please verify your account before signing in.
-          </p>
-          <Link to="/login" className="btn btn--primary btn--block btn--lg">
-            Go to Login
-          </Link>
-        </div>
-      </div>
-    )
-  }
+
 
   return (
     <div className="page page--centered page--auth">
