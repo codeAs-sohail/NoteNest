@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import api from '../api/axios.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useToast } from '../context/ToastContext.jsx'
+import { parseBackendError } from '../utils/errorHandler.js'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -28,12 +29,7 @@ export default function Login() {
       showToast('Logged in successfully! 🎉', 'success')
       navigate('/dashboard', { replace: true })
     } catch (err) {
-      const msg =
-        err.response?.data?.error ||
-        err.response?.data?.detail ||
-        (typeof err.response?.data === 'string' ? err.response.data : null) ||
-        'Login failed. Please try again.'
-      setError(typeof msg === 'string' ? msg : 'Login failed. Please try again.')
+      setError(parseBackendError(err))
     } finally {
       setLoading(false)
     }

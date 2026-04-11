@@ -222,18 +222,18 @@ const Profile = () => {
                   exit={{ opacity: 0, y: -10 }}
                   className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4"
                 >
-                  <div className="space-y-1">
-                     <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Username</label>
+                  <div className="space-y-1 relative opacity-60 cursor-not-allowed">
+                     <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Username (Immutable)</label>
                      <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                        <input name="username" value={editForm.username} onChange={handleEditChange} className="w-full bg-[#060c1c]/80 border border-white/10 text-white rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium" />
+                        <input name="username" value={editForm.username} onChange={handleEditChange} disabled className="w-full bg-[#060c1c]/80 border border-white/10 text-white rounded-xl py-3 pl-10 pr-4 outline-none text-sm font-medium cursor-not-allowed" />
                      </div>
                   </div>
-                  <div className="space-y-1">
-                     <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Email</label>
+                  <div className="space-y-1 relative opacity-60 cursor-not-allowed">
+                     <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Email (Immutable)</label>
                      <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                        <input name="email" value={editForm.email} onChange={handleEditChange} className="w-full bg-[#060c1c]/80 border border-white/10 text-white rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium" />
+                        <input name="email" value={editForm.email} onChange={handleEditChange} disabled className="w-full bg-[#060c1c]/80 border border-white/10 text-white rounded-xl py-3 pl-10 pr-4 outline-none text-sm font-medium cursor-not-allowed" />
                      </div>
                   </div>
                   <div className="space-y-1">

@@ -8,16 +8,12 @@ const NoteCard = ({ note, onLike, onDelete, onEdit, isOwnNote, onClick }) => {
     ? formatDistanceToNow(new Date(note.created_at), { addSuffix: true })
     : 'Recently';
 
-  const pdfUrl = note.pdf_file
-    ? note.pdf_file.startsWith('http')
-      ? note.pdf_file
-      : `http://localhost:8000${note.pdf_file}`
-    : null;
+
 
   const handleDownload = (e) => {
     e.stopPropagation();
-    if (!pdfUrl) return;
-    downloadPdf(pdfUrl, note.title || 'note', note.id);
+    if (!note.pdf_file) return;
+    downloadPdf(note.pdf_file, note.title || 'note', note.id);
   };
 
   return (

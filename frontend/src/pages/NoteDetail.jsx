@@ -87,9 +87,7 @@ const NoteDetail = () => {
   if (!note) return null;
 
   const isOwnNote = user && user.user === note.user;
-  const pdfUrl = note.pdf_file
-    ? (note.pdf_file.startsWith('http') ? note.pdf_file : `http://localhost:8000${note.pdf_file}`)
-    : null;
+
 
   const dateObj = note.created_at ? new Date(note.created_at) : new Date();
 
@@ -171,9 +169,9 @@ const NoteDetail = () => {
                       </>
                     )}
 
-                    {pdfUrl && (
+                    {note.pdf_file && (
                       <button
-                        onClick={() => downloadPdf(pdfUrl, note.title, note.id)}
+                        onClick={() => downloadPdf(note.pdf_file, note.title, note.id)}
                         className="p-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2"
                       >
                         <Download className="w-5 h-5" />

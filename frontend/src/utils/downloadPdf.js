@@ -1,17 +1,30 @@
 import noteService from '../services/noteService';
+import toast from 'react-hot-toast';
 
-/**
- * Forces a browser download of a PDF file using fetch + blob.
- * Also records the download event to the backend if noteId is provided.
- */
+export const getFullUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith('http')) return path;
+  
+  let baseApi = import.meta.env.VITE_API_URL || '';
+  let base = baseApi.replace(/\/api\/?$/, '');
+  
+  if (base === '' && window.location.hostname === 'localhost') {
+    base = 'http://localhost:8000';
+  }
+  return `${base}${path.startsWith('/') ? '' : '/'}${path}`;
+};
+
+
 export const downloadPdf = async (pdfUrl, filename = 'note.pdf', noteId = null) => {
+  const loadingToast = toast.loading('Initiating secure download...');
   try {
+    const fullUrl = getFullUrl(pdfUrl);
     const token = localStorage.getItem('notenest_access');
-    const response = await fetch(pdfUrl, {
+    const response = await fetch(fullUrl, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
 
-    if (!response.ok) throw new Error('Network response was not ok');
+    if (!response.ok) throw new Error('Network error or CORS block');
 
     const blob = await response.blob();
     const blobUrl = URL.createObjectURL(blob);
@@ -23,19 +36,18 @@ export const downloadPdf = async (pdfUrl, filename = 'note.pdf', noteId = null) 
     link.click();
     document.body.removeChild(link);
 
-    // Record the download event in the backend
     if (noteId) {
       try {
         await noteService.recordDownload(noteId);
-      } catch (err) {
-        console.warn('Failed to record download event:', err);
-      }
+      } catch (err) { }
     }
 
-    // Clean up the blob URL after a short delay
+    toast.success('Download complete!', { id: loadingToast });
     setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-  } catch {
-    // Graceful fallback — open in new tab
-    window.open(pdfUrl, '_blank');
+  } catch (error) {
+    console.error("Download fetch failed", error);
+    toast.error('Direct download failed due to browser security. Opening file...', { id: loadingToast });
+    // Safe fallback that opens it if strictly necessary due to hardcore CORS blocking on Cloudinary without setup
+    window.location.href = getFullUrl(pdfUrl);
   }
 };

@@ -40,11 +40,7 @@ const NoteModal = ({ isOpen, onClose, note, onLike, onEdit, onDelete }) => {
   const formattedDate = format(dateObj, "MMMM do, yyyy");
   const formattedTime = format(dateObj, "h:mm a");
 
-  const pdfUrl = note.pdf_file
-    ? note.pdf_file.startsWith('http')
-      ? note.pdf_file
-      : `http://localhost:8000${note.pdf_file}`
-    : '#';
+
 
   const isOwnNote = user && user.user === note.user;
   const hasCommented = comments.some(c => c.sender === user?.username);
@@ -163,7 +159,7 @@ const NoteModal = ({ isOpen, onClose, note, onLike, onEdit, onDelete }) => {
                         <span className="text-sm font-bold">{note.likes_count || 0}</span>
                      </button>
                      <button 
-                        onClick={() => downloadPdf(pdfUrl, note.title, note.id)}
+                        onClick={() => downloadPdf(note.pdf_file, note.title, note.id)}
                         className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-400 hover:to-violet-500 text-white font-black text-sm rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(99,102,241,0.5)] active:scale-95 ml-2"
                      >
                         <Download className="w-4 h-4" /> Download

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FileText, Plus, Search, Trash2, Edit3, X, Download, School, Calendar, BookOpen, Heart, Loader2, Save, UploadCloud, AlertTriangle, User } from 'lucide-react'
 import api from '../api/axios.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import { downloadPdf } from '../utils/downloadPdf.js'
 import toast from 'react-hot-toast'
 
 // ─── Edit Modal ──────────────────────────────────────────────────────────────
@@ -205,9 +206,7 @@ function DashNoteCard({ note, onEdit, onDelete }) {
     ? new Date(note.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
     : null
 
-  const pdfUrl = note.pdf_file
-    ? note.pdf_file.startsWith('http') ? note.pdf_file : `http://localhost:8000${note.pdf_file}`
-    : null
+
 
   return (
     <motion.div 
@@ -250,11 +249,11 @@ function DashNoteCard({ note, onEdit, onDelete }) {
 
       {/* Footer Actions */}
       <div className="pt-4 mt-auto border-t border-white/5 flex items-center gap-2">
-        {pdfUrl && (
-          <a href={pdfUrl} download target="_blank" rel="noreferrer"
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/20 rounded-xl text-indigo-300 text-xs font-bold hover:from-indigo-500/20 hover:to-violet-500/20 transition-all">
+        {note.pdf_file && (
+          <button onClick={() => downloadPdf(note.pdf_file, note.title || 'Note', note.id)}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/20 rounded-xl text-indigo-300 text-xs font-bold hover:from-indigo-500/20 hover:to-violet-500/20 transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] active:scale-95">
             <Download className="w-3.5 h-3.5" /> Download
-          </a>
+          </button>
         )}
         <button onClick={() => onEdit(note)}
           className="w-10 h-10 flex items-center justify-center bg-white/5 border border-white/10 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 hover:border-indigo-500/20 rounded-xl transition-all">
