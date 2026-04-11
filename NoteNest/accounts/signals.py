@@ -48,6 +48,6 @@ def user_profile(sender,instance,created,**kwargs):
             university=instance.university,
             bio=instance.bio,
             email=instance.email,
-            year=instance.yearwg
+            year=instance.year
         )
 
