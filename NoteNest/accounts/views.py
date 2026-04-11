@@ -32,6 +32,24 @@ class Register(APIView):
                 password=hashed,
                 bio=request.data.get('bio')
             )
+            #profile creation
+            user_id,auth_error=get_user_from_token(request)
+            if auth_error:
+                return Response(auth_error)
+                
+            Profile.objects.create(
+                user_id=user_id,
+                username=username,
+                university=request.data.get('university'),
+                year=request.data.get('year'),
+                email=request.data.get('email'),
+                bio=request.data.get('bio')
+            )
+
+
+
+
+
             print(f"{username} registered sucessfully !")
             return Response({"message":f"{username} Registered Sucessfully !"},status=status.HTTP_201_CREATED)
             
