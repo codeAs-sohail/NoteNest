@@ -1,9 +1,11 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from .models import Likes, Notification
+from .models import Likes
+from .models import Notification
+from .helper import get_user_from_token
 
-@receiver(post_save, sender=Likes)
-def notification(sender, instance, created, **kwargs):
+@receiver(post_save,sender=Likes)
+def notification(sender,instance,created,**kwargs):
     if created:
         Notification.objects.create(
             user_id=instance.user_id,

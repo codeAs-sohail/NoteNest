@@ -1,5 +1,74 @@
 
 
+# ==========================================
+#  Frontend (React / Vite)
+# ==========================================
+frontend/node_modules/
+node_modules/
+frontend/dist/
+frontend/build/
+frontend/dist-ssr/
+frontend/.env
+frontend/.env.*
+frontend/.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==========================================
+#  Backend (Django / Python)
+# ==========================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+env/
+venv/
+.venv/
+NoteNest/env/
+NoteNest/venv/
+
+# Environment Variables
+.env
+.env.local
+NoteNest/.env
+NoteNest/.env.local
+
+# Django specific
+*.log
+db.sqlite3
+db.sqlite3-journal
+NoteNest/db.sqlite3
+
+# Uploads / Media / Static
+media/
+NoteNest/media/
+staticfiles/
+NoteNest/staticfiles/
+
+
+
+# ==========================================
+#  OS & IDE Files
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
 # Python cache
 __pycache__/
 *.py[cod]
@@ -34,7 +103,9 @@ Thumbs.db
 #Media
 media/
 
+#because file contains the SMTP password and configutrations
+settings.py
 
 
-
-
+#Deployment
+DEPLOYSUMMARY
