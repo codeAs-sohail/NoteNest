@@ -99,7 +99,7 @@ const NoteCard = ({ note, onLike, onDelete, onEdit, isOwnNote, onClick }) => {
           <span className={`text-sm font-bold ${note.is_liked ? 'text-rose-400' : ''}`}>{note.likes_count || 0}</span>
         </button>
 
-        {pdfUrl && (
+        {note.pdf_file && (
           <button
             onClick={handleDownload}
             className="w-9 h-9 bg-white/5 border border-white/10 text-slate-400 rounded-xl flex items-center justify-center hover:bg-indigo-500 hover:text-white hover:border-indigo-400 active:scale-95 transition-all"
