@@ -38,7 +38,7 @@ class NoteDetail(APIView):
             return Response(serialized.data,status=status.HTTP_200_OK)
         
         except Exception as err:
-            return Response({"error":str(err)})
+            return Response({"error":str(err)}, status=status.HTTP_400_BAD_REQUEST)
         
     def put(self,request,id):
         service=Noteservice()

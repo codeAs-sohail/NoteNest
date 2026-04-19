@@ -110,8 +110,7 @@ class Noteservice:
         if not user_id:
             raise AuthenticationFailed("user id not found !")
         note=Notes.objects.filter(user_id=user_id)
-        if not note:
-            raise NotFound("Notes Not Found !")
+        # Return empty list if no notes — do NOT raise 404 for an empty result
         return note 
     
     
@@ -121,8 +120,7 @@ class Noteservice:
             raise AuthenticationFailed("Invalid Token or Expired Token !")
         
         note=Notes.objects.exclude(user_id=user_id)
-        if not note:
-            raise NotFound("Notes Not Found !")
+        # Return empty queryset if nothing to explore — do NOT raise 404
         
         query_params=request.query_params
          
@@ -223,8 +221,7 @@ class Noteservice:
             raise Exception("Invalid Token or Expired Token !")
         
         data=Notification.objects.filter(receiver_id=user_id)
-        if not data:
-            raise NotFound("Data Not Found !")
+        # Return empty list if no notifications — do NOT raise 404
         print(data.values)
         return data
         

@@ -13,6 +13,7 @@ urlpatterns = [
     path('api/notes/ likes/<int:id>/', Likes.as_view(), name="likes"),
     # Dynamic route last — so it doesn't swallow the static routes above
     path('api/notes/<int:id>/', NoteDetail.as_view(), name="notes"),
+    
 ]
 
 
