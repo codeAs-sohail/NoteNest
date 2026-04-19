@@ -20,3 +20,30 @@ def get_user_from_token(request):
         return [None, Response({"error": "Invalid or expired token"}, status=status.HTTP_401_UNAUTHORIZED)]
     except Exception as e:
         return [None, Response({"error": str(e)}, status=status.HTTP_401_UNAUTHORIZED)]
+
+
+
+
+#SUPABASE CONFIG
+from supabase import create_client
+import os
+
+supabase = create_client(
+    os.getenv("SUPABASE_URL"),
+    os.getenv("SUPABASE_KEY")
+)
+
+def upload_pdf(file):
+    file_path = f"pdfs/{file.name}"
+
+    supabase.storage.from_("notes").upload(
+        file_path,
+        file.read()
+    )
+
+    public_url = supabase.storage.from_("notes").get_public_url(file_path)
+
+    return public_url
+
+
+

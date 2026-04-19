@@ -2,34 +2,38 @@ from notes.models import Notes,Profile,Likes,Comments,Notification
 from rest_framework.exceptions import NotFound,ValidationError
 from rest_framework.response import Response
 from django.db.models import F
+from .helper import upload_pdf
 class noteRepository:
     
-    def create_note_repo(self,user_id,data,files,prof_id):
-        note=None #here note is defined in if condition ,<- this fails means note variable doesn't exist , ultimately it will crash
-     
+    def create_note_repo(self, user_id, data, files, prof_id):
         if not prof_id:
-            raise NotFound("Profile id not found !") 
+            raise NotFound("Profile ID not found!") 
+            
         try:
+            pdf = files.get('pdf_file')
+            file_url = None
+
+            # If a PDF file is provided, upload it to Supabase and get the URL
+            if pdf:
+                file_url = upload_pdf(pdf)
               
-            note=Notes.objects.create(
+            # Create the note in the database, saving the Supabase URL in the pdf_file field
+            note = Notes.objects.create(
                 user_id=user_id,
                 profile_id=prof_id,
                 title=data.get('title'),
                 description=data.get('description'),
                 subject=data.get('subject'),
                 university=data.get('university'),
-                pdf_file=files.get('pdf_file'),
-                download_count=data.get('download_count',0)
+                pdf_file=file_url,
+                download_count=data.get('download_count', 0)
             )
+            return note
         except Exception as err:
-            print(err)
-        return note
+            # Raise a ValidationError so the caller knows what went wrong instead of returning None silently
+            raise ValidationError(f"Error creating note: {str(err)}")
 
-        
-    """ mai profile ko as a foreign key use kar raha hu , so "profile" and by default uski 'id' ayegi(pk jo ha) which forms 'profile_id' , i was doing profile=prof_id which was profile_id=prof_id  """
-    
-    
-    def update_note_repo(self,request,files,user_id,id):
+    def update_note_repo(self, request, files, user_id, id):
         # We use .first() here because .filter() returns a list, and we need a single object
         note = Notes.objects.filter(user_id=user_id, id=id).first()
         
@@ -37,34 +41,39 @@ class noteRepository:
             raise NotFound("Note not found or you don't have permission to edit it.")
 
         try:
-            
+            # Update basic fields if they are provided in the request
             note.title = request.data.get('title', note.title)
             note.description = request.data.get('description', note.description)
             note.subject = request.data.get('subject', note.subject)
             note.university = request.data.get('university', note.university)
-            note.pdf_file = files.get('pdf_file', note.pdf_file)
+
+            # If a new PDF is provided, upload to Supabase and update the URL
+            pdf = files.get('pdf_file')
+            if pdf:
+                note.pdf_file = upload_pdf(pdf)
+            
             note.save()
 
-            #the note title should be synced to other tables 
+            # Sync the new note title to related tables (Likes, Notifications)
             new_title = note.title
             Likes.objects.filter(note_id=id).update(note_title=new_title)
             Notification.objects.filter(note_id=id).update(note_title=new_title)
 
             return note
         except Exception as err:
-            raise ValidationError(str(err))
-            
+            raise ValidationError(f"Error updating note: {str(err)}")
 
         
     def create_like_repo(self,request,user_id,note_id):
         like=None
-        #value is used to get specific fields like only name and age 
-        # to get the sender's username 
+        
+
+        
         try:
             send_data=Profile.objects.filter(user_id=user_id).values('username').first() 
             send_username=send_data['username']
             
-            #Receiver or note owner's username 
+            
             rec_data=Notes.objects.filter(id=note_id).values('user__username','user_id','title').first()
             rec_username=rec_data['user__username']
             rec_user_id=rec_data['user_id']
@@ -72,18 +81,18 @@ class noteRepository:
         except Exception as err:
             raise Exception(str(err))        
         
-            #if user already exist in db delete it (UNLIKE)
+             
         data=Likes.objects.filter(user_id=user_id,note_id=note_id).first()
         if data:
             print(f"{data} already exists deleting !")
-            like=data #storing data to return 
+            like=data  
             data.delete()
-            #decrement in likes count in notes
+ 
             updated=updated = Notes.objects.filter(id=note_id).update(likes_count=F('likes_count') - 1)
             return like
         else:
                 
-            #Creating a record in DB(likes table)   
+
             like=Likes.objects.create(
                 user_id=user_id,
                 note_id=note_id,
