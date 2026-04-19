@@ -24,7 +24,7 @@ class Register(APIView):
             except Exception as err:
                 return Response({"error":err})
             
-            Userregister.objects.create(
+            user_instance = Userregister.objects.create(
                 username=username,
                 university=request.data.get('university'),
                 year=request.data.get('year'),
@@ -32,6 +32,17 @@ class Register(APIView):
                 password=hashed,
                 bio=request.data.get('bio')
             )
+            
+            # Manually create the Profile since signals were removed
+            Profile.objects.create(
+                user=user_instance,
+                username=user_instance.username,
+                university=user_instance.university,
+                year=user_instance.year,
+                email=user_instance.email,
+                bio=user_instance.bio
+            )
+            
             print(f"{username} registered sucessfully !")
             return Response({"message":f"{username} Registered Sucessfully !"},status=status.HTTP_201_CREATED)
             
@@ -89,7 +100,8 @@ class Userprofile(APIView):
         try:
             user_profile=Profile.objects.get(user_id=user_id)
         except Profile.DoesNotExist:
-            print("profile doesn't exist !",status=status.HTTP_404_NOT_FOUND)
+            print("profile doesn't exist !")
+            return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
             
         serialized=Profileserializer(user_profile)
         return Response(serialized.data,status=status.HTTP_200_OK)
