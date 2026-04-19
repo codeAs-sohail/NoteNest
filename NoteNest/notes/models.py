@@ -7,7 +7,7 @@ class Notes(models.Model):
     description=models.TextField(blank=True,null=True)
     subject=models.CharField(max_length=100)
     university=models.CharField(max_length=100,blank=True,null=True)
-    pdf_file=models.FileField(upload_to='pdfs/')
+    pdf_file=models.FileField(upload_to='pdfs/', max_length=500)
     download_count=models.IntegerField(default=0)
     likes_count=models.IntegerField(default=0)
     comments_count=models.IntegerField(default=0)
