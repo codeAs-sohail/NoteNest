@@ -13,7 +13,7 @@ tzdata==2025.3
 
 
 #deployment dependencies 
-
+supabase
 gunicorn
 dj-database-url
 whitenoise
