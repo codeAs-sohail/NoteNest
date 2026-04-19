@@ -33,12 +33,18 @@ supabase = create_client(
     os.getenv("SUPABASE_KEY")
 )
 
+import uuid
+
 def upload_pdf(file):
-    file_path = f"pdfs/{file.name}"
+    # Prefix filename with UUID to prevent Supabase 409 Duplicate errors
+    # e.g. "notes.pdf" → "pdfs/a1b2c3d4_notes.pdf"
+    unique_name = f"{uuid.uuid4().hex[:8]}_{file.name}"
+    file_path = f"pdfs/{unique_name}"
 
     supabase.storage.from_("notes").upload(
         file_path,
-        file.read()
+        file.read(),
+        {"content-type": "application/pdf"}
     )
 
     public_url = supabase.storage.from_("notes").get_public_url(file_path)
