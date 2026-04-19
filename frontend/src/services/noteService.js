@@ -24,6 +24,9 @@ const noteService = {
   },
 
   createNote: async (formData) => {
+    // POST to notes/0/ — the id=0 is received by the view but intentionally ignored during creation.
+    // Do NOT pass { headers: { 'Content-Type': 'multipart/form-data' } } here.
+    // Axios auto-sets the correct boundary when FormData is detected.
     return await api.post('notes/0/', formData);
   },
 

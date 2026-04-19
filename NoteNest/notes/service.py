@@ -39,7 +39,7 @@ class Noteservice:
         if not data.get('description'):
             raise ValidationError(" Description Not Found !")
         
-        if not data.get('pdf_file'):
+        if not files.get('pdf_file'):
             raise ValidationError(" Pdf file Not Found !")
         
         

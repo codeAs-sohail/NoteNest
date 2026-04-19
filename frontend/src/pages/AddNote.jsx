@@ -15,7 +15,6 @@ const AddNote = () => {
   const [file, setFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -42,21 +41,23 @@ const AddNote = () => {
     uploadData.append('download_count', 0); // Initialize
 
     setIsUploading(true);
-    // Fake progress for UX
-    const interval = setInterval(() => {
-      setUploadProgress(p => (p < 90 ? p + 10 : p));
-    }, 200);
 
     try {
       await noteService.createNote(uploadData);
-      clearInterval(interval);
-      setUploadProgress(100);
       toast.success('Note uploaded successfully!');
-      setTimeout(() => navigate('/'), 800);
+      setTimeout(() => navigate('/dashboard'), 800);
     } catch (error) {
-      clearInterval(interval);
-      toast.error('Upload failed. Please try again.');
       setIsUploading(false);
+
+      // Surface the real backend error so we can debug it instead of swallowing it
+      const backendMsg =
+        error.response?.data?.error ||
+        error.response?.data?.detail ||
+        (typeof error.response?.data === 'string' ? error.response.data : null) ||
+        'Upload failed. Please try again.';
+
+      console.error('Note upload failed:', error.response?.data);
+      toast.error(backendMsg);
     }
   };
 
@@ -172,10 +173,20 @@ const AddNote = () => {
             <div className="pt-4">
                {isUploading ? (
                  <div className="w-full bg-[#060c1c] rounded-2xl p-4 border border-indigo-500/30 overflow-hidden relative">
-                    <div className="absolute top-0 left-0 h-full bg-gradient-to-r from-indigo-600 to-violet-600 transition-all duration-300 ease-out z-0" style={{ width: `${uploadProgress}%` }}></div>
-                    <div className="relative z-10 flex items-center justify-between text-white font-bold text-sm">
-                       <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</span>
-                       <span>{uploadProgress}%</span>
+                    {/* Indeterminate shimmer — loops honestly while Supabase uploads */}
+                    <div className="absolute top-0 left-0 h-full w-full overflow-hidden z-0">
+                      <div
+                        className="h-full bg-gradient-to-r from-indigo-600 via-violet-500 to-indigo-600"
+                        style={{
+                          width: '60%',
+                          animation: 'shimmer 1.6s ease-in-out infinite',
+                          backgroundSize: '200% 100%',
+                        }}
+                      />
+                    </div>
+                    <div className="relative z-10 flex items-center gap-2 text-white font-bold text-sm">
+                       <Loader2 className="w-4 h-4 animate-spin" />
+                       <span>Uploading to Supabase… this may take a moment</span>
                     </div>
                  </div>
                ) : (

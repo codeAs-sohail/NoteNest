@@ -59,3 +59,9 @@
   background: rgba(255,255,255,0.08);
   border-radius: 100px;
 }
+
+/* Indeterminate upload shimmer animation */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
