@@ -5,12 +5,19 @@ from rest_framework import serializers
 class noteSerializer(serializers.ModelSerializer):
     # Include the username of whoever uploaded this note
     user_username = serializers.SerializerMethodField()
+    # Output the raw database string (the Supabase URL) instead of Django's /media/ prefixed URL
+    pdf_file = serializers.SerializerMethodField()
 
     def get_user_username(self, obj):
         try:
             return obj.user.username
         except Exception:
             return None
+
+    def get_pdf_file(self, obj):
+        if obj.pdf_file:
+            return obj.pdf_file.name
+        return None
 
     class Meta:
         model = Notes
