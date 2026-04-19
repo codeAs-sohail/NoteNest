@@ -41,11 +41,23 @@ def upload_pdf(file):
     unique_name = f"{uuid.uuid4().hex[:8]}_{file.name}"
     file_path = f"pdfs/{unique_name}"
 
-    supabase.storage.from_("notes").upload(
-        file_path,
-        file.read(),
-        {"content-type": "application/pdf"}
-    )
+    try:
+        supabase.storage.from_("notes").upload(
+            file_path,
+            file.read(),
+            {
+                "content-type": "application/pdf",
+                "upsert": "true",
+                "x-upsert": "true"
+            }
+        )
+    except Exception as e:
+        # If Supabase client retries on network drop, the second try gets 409 Duplicate
+        # because the first try succeeded. The file is already in the bucket, so we can ignore it.
+        if "409" in str(e) and "Duplicate" in str(e):
+            pass
+        else:
+            raise e
 
     public_url = supabase.storage.from_("notes").get_public_url(file_path)
 
