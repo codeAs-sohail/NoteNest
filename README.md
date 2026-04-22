@@ -40,7 +40,7 @@ Manage your brand and your academic uploads in one spot.
 
 ## 🛠️ Tech Stack Overview
 **Frontend:** React.js (Vite), Tailwind CSS, Framer Motion, Axios, Lucide React, and `date-fns`. *(Architected by Antigravity).*
-**Backend:** Django, Django REST Framework, Simple JWT, bcrypt, SQLite/PostgreSQL.
+**Backend:** Django, Django REST Framework, Simple JWT, bcrypt, PostgreSQL / SQLite, Supabase (Cloud Storage & DB), Whitenoise.
 
 ---
 
@@ -74,10 +74,19 @@ cd NOTES
    In the root of the `NoteNest` directory, create a `.env` file and strictly add your environment variables. It should look like this:
    ```ini
    SECRET_KEY='your-secure-django-secret-key-here'
+   DEBUG=True
+   ALLOWED_HOSTS=localhost,127.0.0.1
+   DATABASE_URL='your-postgres-database-url-here'
    DEFAULT_FROM_EMAIL="your-email@gmail.com"
+   
    EMAIL_HOST_USER="your-email@gmail.com"
    EMAIL_HOST_PASSWORD="your-app-password-here"
+   
+
+   SUPABASE_URL='your-supabase-project-url-here'
+   SUPABASE_KEY='your-supabase-anon-key-here'
    ```
+
 5. **Apply database migrations:**
    ```bash
    python manage.py makemigrations
@@ -104,7 +113,7 @@ cd NOTES
    ```ini
    VITE_API_URL=/api
    ```
-4. **Start the frontend development server:**
+4. ** Start the frontend development server:- **
    ```bash
    npm run dev
    ```

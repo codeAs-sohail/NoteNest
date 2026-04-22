@@ -33,6 +33,7 @@ supabase = create_client(
     os.getenv("SUPABASE_KEY")
 )
 
+
 import uuid
 
 def upload_pdf(file):

@@ -25,7 +25,7 @@ class Likes(models.Model):
 
     class Meta:
         unique_together=('user','note')
-
+    
 
 class Notification(models.Model):
     user=models.ForeignKey(Userregister,on_delete=models.CASCADE,related_name="user_notification")
