@@ -1,5 +1,6 @@
 from notes.views import NoteDetail, NotesAll, Notesexplore, Likes, Comments, Downloads,notification
 from django.urls import path, include
+from django.http import HttpResponse
 
 urlpatterns = [
     #notes
@@ -13,8 +14,9 @@ urlpatterns = [
     #comments 
     path('api/notes/comment/<int:id>/', Comments.as_view(), name="comments"),
     path('api/notes/ likes/<int:id>/', Likes.as_view(), name="likes"),
-     
     
+    #Uptime reboot 
+    path('health/', lambda _: HttpResponse("OK")),
     
 ]
 
