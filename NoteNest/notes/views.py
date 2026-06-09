@@ -11,6 +11,12 @@ from rest_framework.exceptions import ValidationError,AuthenticationFailed,NotFo
 from rest_framework.pagination import PageNumberPagination
 class NoteDetail(APIView):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+    
+    """When the frontend sends data to your backend, it can send it in different formats.
+    JSON parser-used when frontend sends json      
+    formerparser-when data comes from normal html form 
+    MultiPartParser-used when uploading files
+    """
 
     
     def get(self,request,id):

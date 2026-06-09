@@ -3,9 +3,24 @@ from rest_framework import serializers
 
 
 class noteSerializer(serializers.ModelSerializer):
-    # Include the username of whoever uploaded this note
+    
+    
+    """ SerializerMethodField is used when I want to send custom data in the API response.
+        Django REST Framework calls a method named get_<field_name>() to generate the value for that field.
+        the SerializerMethodField looks for a custom method and should be defined based on the field we define 
+        Ex- user_username=serializer... - function name-get_user_username()
+            fullname=serializer...- functon name-get_fullname ()
+            the drf automatically this methods 
+        """
+    
+    # how it works 
+    """when frontend request for data, the backend first retrieve data(RAW data), serialzes it (turns into json format),
+        through serializers cretaed in serializer.py , the data will be send to frontend only when its is serialized, while here
+        we can send our custom fields(data to frontend)  
+    """
+
+    
     user_username = serializers.SerializerMethodField()
-    # Output the raw database string (the Supabase URL) instead of Django's /media/ prefixed URL
     pdf_file = serializers.SerializerMethodField()
 
     def get_user_username(self, obj):
