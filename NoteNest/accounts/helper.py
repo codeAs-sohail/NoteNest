@@ -2,6 +2,8 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.response import Response
 from rest_framework import status
+from django.core.mail import send_mail
+from django.conf import settings
 
 def get_user_from_token(request):
     auth_header = request.headers.get("Authorization", "")
@@ -20,3 +22,16 @@ def get_user_from_token(request):
         return [None, Response({"error": "Invalid or expired token"}, status=status.HTTP_401_UNAUTHORIZED)]
     except Exception as e:
         return [None, Response({"error": str(e)}, status=status.HTTP_401_UNAUTHORIZED)]
+
+
+def Send_Registration_Email(user_instance):
+    send_mail(
+        subject='Welcome to NoteNest',
+        message=f'Hi {user_instance.username}, welcome to our platform!',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user_instance.email],
+        fail_silently=False,
+    )
+    
+    
+    

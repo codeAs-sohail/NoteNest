@@ -6,8 +6,9 @@ from rest_framework.views import APIView
 import bcrypt
 from accounts.serializer import Registerserializer,Profileserializer
 from .models import Userregister,Profile
-from .helper import get_user_from_token
+from .helper import get_user_from_token,Send_Registration_Email
 from rest_framework.permissions import IsAuthenticated
+from threading import Thread
 class Register(APIView):
     def post(self,request):
         username=request.data.get('username')
@@ -43,8 +44,16 @@ class Register(APIView):
                 bio=user_instance.bio
             )
             
+            Thread(
+                target=Send_Registration_Email,
+                args=(user_instance,)# its a rule to send tuple - so just add a comma 
+            ).start()
+            
             print(f"{username} registered sucessfully !")
             return Response({"message":f"{username} Registered Sucessfully !"},status=status.HTTP_201_CREATED)
+        else:
+            print(serialized.errors)
+            return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
             
         
 
