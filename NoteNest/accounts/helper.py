@@ -3,7 +3,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.mail import send_mail
-from django.conf import settings
+import os
 
 def get_user_from_token(request):
     auth_header = request.headers.get("Authorization", "")
@@ -28,7 +28,7 @@ def Send_Registration_Email(user_instance):
     send_mail(
         subject='Welcome to NoteNest',
         message=f'Hi {user_instance.username}, welcome to our platform!',
-        from_email=settings.DEFAULT_FROM_EMAIL,
+        from_email=os.getenv("DEFAULT_FROM_EMAIL"),
         recipient_list=[user_instance.email],
         fail_silently=False,
     )
