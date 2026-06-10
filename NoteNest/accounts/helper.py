@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.core.mail import send_mail
 import os
-
+from django.conf import settings
 def get_user_from_token(request):
     auth_header = request.headers.get("Authorization", "")
     
@@ -26,6 +26,9 @@ def get_user_from_token(request):
 
 def Send_Registration_Email(user_instance):
     try:
+        print(settings.EMAIL_HOST)
+        print(settings.EMAIL_PORT)
+        print(settings.EMAIL_HOST_USER)
         send_mail(
             subject='Welcome to NoteNest',
             message=f'Hi {user_instance.username}, welcome to our platform!',
