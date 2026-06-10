@@ -25,13 +25,16 @@ def get_user_from_token(request):
 
 
 def Send_Registration_Email(user_instance):
-    send_mail(
-        subject='Welcome to NoteNest',
-        message=f'Hi {user_instance.username}, welcome to our platform!',
-        from_email=os.getenv("DEFAULT_FROM_EMAIL"),
-        recipient_list=[user_instance.email],
-        fail_silently=False,
-    )
-    
+    try:
+        send_mail(
+            subject='Welcome to NoteNest',
+            message=f'Hi {user_instance.username}, welcome to our platform!',
+            from_email=os.getenv("DEFAULT_FROM_EMAIL"),
+            recipient_list=[user_instance.email],
+            fail_silently=False,
+        )
+        print(f"{user_instance.username}'s Email Send Sucessfully !")
+    except Exception as err:
+        print(f"An Email Occured As \n str({err})")
     
     
