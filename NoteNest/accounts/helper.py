@@ -6,6 +6,10 @@ from django.core.mail import send_mail
 from decouple import config
 from django.conf import settings
 from django.template.loader import render_to_string
+import logging
+"""the logger prins the error with the file name like [accounts.views] ERROR: User validation failed"""
+
+logger = logging.getLogger(__name__)
 def get_user_from_token(request):
     auth_header = request.headers.get("Authorization", "")
     
@@ -41,7 +45,7 @@ def Send_Registration_Email(user_instance):
         for Welcom.html, so i defined only Welcome.html
         
         """
-        
+        logger.info(f"Sending welcome email to {user_instance.email}")
         print(settings.EMAIL_HOST)
         print(settings.EMAIL_PORT)
         print(settings.EMAIL_HOST_USER)
