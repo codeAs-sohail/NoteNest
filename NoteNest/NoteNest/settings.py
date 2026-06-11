@@ -165,7 +165,7 @@ EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
 
 EMAIL_USE_SSL = False
 EMAIL_USE_TLS = True
-EMAIL_TIMEOUT = 30  # 30 seconds timeout for SMTP connection
+EMAIL_TIMEOUT =1000  # 12 minutes timeout for SMTP connection
 
 #PDF configuration 
 MEDIA_URL = '/media/'
