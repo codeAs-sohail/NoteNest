@@ -29,7 +29,7 @@ def Send_Registration_Email(user_instance):
     try:
         
         html_content = render_to_string(
-            "emails/welcome.html",
+            "Emails/Welcome.html",
             {
                 "username": user_instance.username
             }
