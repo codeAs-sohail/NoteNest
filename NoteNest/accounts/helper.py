@@ -28,6 +28,7 @@ def get_user_from_token(request):
 def Send_Registration_Email(user_instance):
     try:
         
+        
         html_content = render_to_string(
             "Emails/Welcome.html",
             {
@@ -42,10 +43,11 @@ def Send_Registration_Email(user_instance):
             message=f'Hi {user_instance.username}, welcome to our platform!',
             from_email=config("DEFAULT_FROM_EMAIL"),
             recipient_list=[user_instance.email],
+            html_message=html_content, 
             fail_silently=False,
         )
         print(f"{user_instance.username}'s Email Send Sucessfully !")
     except Exception as err:
-        print(f"An Email Occured As \n str({err})")
+        print(f"An Email Error Occurred: \n{str(err)}")
     
     
