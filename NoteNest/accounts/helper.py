@@ -30,11 +30,18 @@ def Send_Registration_Email(user_instance):
         
         
         html_content = render_to_string(
-            "Emails/Welcome.html",
+            "Welcome.html",
             {
                 "username": user_instance.username
             }
         )
+        
+        """'DIRS': [os.path.join(BASE_DIR.parent, 'Emails')]-
+        because this is defined in settings.py , the django  will directly check
+        for Welcom.html, so i defined only Welcome.html
+        
+        """
+        
         print(settings.EMAIL_HOST)
         print(settings.EMAIL_PORT)
         print(settings.EMAIL_HOST_USER)

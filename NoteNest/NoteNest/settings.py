@@ -74,7 +74,7 @@ ROOT_URLCONF = 'NoteNest.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'Emails')],
+        'DIRS': [os.path.join(BASE_DIR.parent, 'Emails')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
