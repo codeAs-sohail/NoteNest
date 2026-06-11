@@ -12,20 +12,20 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables from .env file
-load_dotenv(BASE_DIR / '.env')
+
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY=os.getenv("SECRET_KEY")
+SECRET_KEY=config("SECRET_KEY")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -34,8 +34,8 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
+DEBUG = config('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', 'localhost').split(',')
 
 # Application definition
 
@@ -154,15 +154,17 @@ SIMPLE_JWT={
 }
 
 #Email Config
-DEFAULT_FROM_EMAIL=os.getenv("DEFAULT_FROM_EMAIL")
+DEFAULT_FROM_EMAIL=config("DEFAULT_FROM_EMAIL")
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER =os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD =os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = config("EMAIL_PORT", cast=int)
 
+EMAIL_HOST_USER=config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
+
+EMAIL_USE_SSL = False
+EMAIL_USE_TLS = True
 
 #PDF configuration 
 MEDIA_URL = '/media/'
@@ -176,7 +178,7 @@ import dj_database_url
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL'),
+        default=config('DATABASE_URL'),
         conn_max_age=600
     )
 }

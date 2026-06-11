@@ -2,6 +2,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.response import Response
 from rest_framework import status
+from decouple import config
 
 def get_user_from_token(request):
     auth_header = request.headers.get("Authorization", "")
@@ -29,8 +30,8 @@ from supabase import create_client
 import os
 
 supabase = create_client(
-    os.getenv("SUPABASE_URL"),
-    os.getenv("SUPABASE_KEY")
+    config("SUPABASE_URL"),
+    config("SUPABASE_KEY")
 )
 
 

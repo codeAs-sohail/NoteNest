@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to NoteNest</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f4f7fb;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #1f2937;
+    }
+
+    .wrapper {
+      width: 100%;
+      padding: 24px 0;
+      background-color: #f4f7fb;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      padding: 40px 30px;
+      text-align: center;
+      color: #ffffff;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1.2;
+    }
+
+    .header p {
+      margin: 12px 0 0;
+      font-size: 16px;
+      opacity: 0.95;
+    }
+
+    .content {
+      padding: 32px 30px;
+    }
+
+    .greeting {
+      font-size: 18px;
+      margin: 0 0 14px;
+      font-weight: bold;
+    }
+
+    .text {
+      font-size: 15px;
+      line-height: 1.8;
+      margin: 0 0 20px;
+      color: #4b5563;
+    }
+
+    .feature-box {
+      background-color: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .feature-title {
+      margin: 0 0 6px;
+      font-size: 16px;
+      color: #111827;
+      font-weight: bold;
+    }
+
+    .feature-text {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #6b7280;
+    }
+
+    .button-area {
+      text-align: center;
+      padding: 12px 0 4px;
+    }
+
+    .button {
+      display: inline-block;
+      background: #4f46e5;
+      color: #ffffff !important;
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .footer {
+      padding: 22px 30px 32px;
+      text-align: center;
+      font-size: 13px;
+      color: #9ca3af;
+      background-color: #ffffff;
+    }
+
+    .brand {
+      font-weight: bold;
+      color: #4f46e5;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .header, .content, .footer {
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+      }
+
+      .header h1 {
+        font-size: 24px;
+      }
+
+      .text {
+        font-size: 14px;
+      }
+
+      .button {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td align="center">
+          <table role="presentation" class="container" width="100%" cellspacing="0" cellpadding="0" border="0">
+            <tr>
+              <td class="header">
+                <h1>Welcome to NoteNest</h1>
+                <p>Your notes, organized beautifully.</p>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="content">
+                <p class="greeting">Hi {{ username }},</p>
+
+                <p class="text">
+                  Welcome to <strong>NoteNest</strong>. Your account is now ready.
+                  We built NoteNest to help you keep your notes safe, simple, and always accessible.
+                </p>
+
+                <div class="feature-box">
+                  <p class="feature-title">Fast Note Management</p>
+                  <p class="feature-text">
+                    Create, edit, and organize your notes quickly without any confusion.
+                  </p>
+                </div>
+
+                <div class="feature-box">
+                  <p class="feature-title">Secure Access</p>
+                  <p class="feature-text">
+                    Your notes are stored safely so you can access them whenever you need.
+                  </p>
+                </div>
+
+                <div class="feature-box">
+                  <p class="feature-title">Clean and Simple Interface</p>
+                  <p class="feature-text">
+                    A user-friendly design that makes note-taking easy and comfortable.
+                  </p>
+                </div>
+
+                <div class="feature-box">
+                  <p class="feature-title">Built for Productivity</p>
+                  <p class="feature-text">
+                    Stay focused, save ideas, and keep everything in one place.
+                  </p>
+                </div>
+
+                <p class="text">
+                  We are happy to have you here. Start exploring NoteNest and make your study and daily note-taking smoother.
+                </p>
+
+                <div class="button-area">
+                  <a href="{{ login_url }}" class="button">Go to NoteNest</a>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="footer">
+                <p style="margin: 0 0 6px;">
+                  Thanks for joining <span class="brand">NoteNest</span>
+                </p>
+                <p style="margin: 0;">
+                  If you did not create this account, you can ignore this email.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
