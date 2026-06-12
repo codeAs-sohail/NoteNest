@@ -165,8 +165,7 @@ EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
 
 EMAIL_USE_SSL = False
 EMAIL_USE_TLS = True
-EMAIL_TIMEOUT =1000  # 12 minutes timeout for SMTP connection
-
+#EMAIL_TIMEOUT =1000   
 #PDF configuration 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
