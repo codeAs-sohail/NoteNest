@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 import bcrypt
 from accounts.serializer import Registerserializer,Profileserializer
 from .models import Userregister,Profile
-from .helper import get_user_from_token,Send_Registration_Email
+from .helper import get_user_from_token,send_welcome_email
 from rest_framework.permissions import IsAuthenticated
 from threading import Thread
 class Register(APIView):
@@ -45,7 +45,7 @@ class Register(APIView):
             )
             
             Thread(
-                target=Send_Registration_Email,
+                target=send_welcome_email,
                 args=(user_instance,)# its a rule to send tuple - so just add a comma 
             ).start()
             

@@ -7,7 +7,7 @@ from decouple import config
 from django.conf import settings
 from django.template.loader import render_to_string
 import logging
-import requests
+from django.core.mail import EmailMultiAlternatives
 
 
 
@@ -33,59 +33,17 @@ def get_user_from_token(request):
         return [None, Response({"error": str(e)}, status=status.HTTP_401_UNAUTHORIZED)]
 
 
-def Send_Registration_Email(user_instance):
+
+def send_welcome_email(user_instance):
+    html=render_to_string("Welcome.html",{"username":user_instance.username})
     
-    
-    #message to be send
-    welcome_message = f"""
-    
-    
-    Hi {user_instance.username},
-
-    Welcome to NoteNest! 🎉
-
-    Thank you for joining our platform.
-
-    With NoteNest, you can:
-    • Create and organize notes
-    • Access your notes anytime
-    • Keep your ideas and tasks in one place
-
-    We're excited to have you with us.
-
-    If you have any questions or feedback, feel free to reach out.
-
-    Happy note-taking!
-
-    Regards,
-    The NoteNest Team
-    """
-    
-    
-    try:
+    email=EmailMultiAlternatives(
+        subject="Welcome to Notenest",
+        body="",
+        from_email=config('DEFAULT_FROM_EMAIL'),
+        to=[user_instance.email]
         
-        
-       
-        """'DIRS': [os.path.join(BASE_DIR.parent, 'Emails')]-
-        because this is defined in settings.py , the django  will directly check
-        for Welcom.html, so i defined only Welcome.html
-        
-        """
-        logger.info(f"Sending welcome email to {user_instance.email}")
-        print(settings.EMAIL_HOST)
-        print(settings.EMAIL_PORT)
-        print(settings.EMAIL_HOST_USER)
-        send_mail(
-            subject='Welcome to NoteNest',
-            message=welcome_message,
-            from_email=config("DEFAULT_FROM_EMAIL"),
-            recipient_list=[user_instance.email],
-            fail_silently=False,
         )
-        print(f"{user_instance.username}'s Email Send Sucessfully !")
-    except Exception as err:
-        print(f"An Email Error Occurred: \n{str(err)}")
-    
-    
-    
-     
+    email.attach_alternative(html, "text/html")
+    email.send()
+
