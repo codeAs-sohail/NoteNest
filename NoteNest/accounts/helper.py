@@ -11,7 +11,7 @@ from django.core.mail import EmailMultiAlternatives
 
 
 
-"""the logger prins the error with the file name like [accounts.views] ERROR: User validation failed"""
+"""the logger prints the error with the file name like [accounts.views] ERROR: User validation failed"""
 
 logger = logging.getLogger(__name__)
 def get_user_from_token(request):
