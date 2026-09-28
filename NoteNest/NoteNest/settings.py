@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',   #
     'accounts.apps.AccountsConfig',
+    'anymail',
 
 ]
 
@@ -147,12 +148,15 @@ REST_FRAMEWORK = {
 }
 
 from datetime import timedelta
+
 SIMPLE_JWT={
     'ACCESS_TOKEN_LIFETIME':timedelta(minutes=120),
     'REFRESH_TOKEN_LIFETIME':timedelta(days=1),
     'AUTH_HEADER_TYPES':('Bearer',),
 }
 
+
+"""
 #Email Config
 DEFAULT_FROM_EMAIL=config("DEFAULT_FROM_EMAIL")
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -165,6 +169,25 @@ EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
 
 EMAIL_USE_SSL = False
 EMAIL_USE_TLS = True
+
+"""
+
+
+
+
+# Email Config
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
+
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'anymail.backends.brevo.EmailBackend'
+
+ANYMAIL = {
+    "BREVO_API_KEY": config("BREVO_API_KEY", default=""),
+}
+
+
 #EMAIL_TIMEOUT =1000   
 #PDF configuration 
 MEDIA_URL = '/media/'

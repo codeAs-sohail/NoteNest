@@ -8,9 +8,10 @@ from django.conf import settings
 from django.template.loader import render_to_string
 import logging
 from django.core.mail import EmailMultiAlternatives
-
-
-
+import logging
+from django.conf import settings
+from django.utils.html import strip_tags
+logger = logging.getLogger(__name__)
 """the logger prints the error with the file name like [accounts.views] ERROR: User validation failed"""
 
 logger = logging.getLogger(__name__)
@@ -33,7 +34,7 @@ def get_user_from_token(request):
         return [None, Response({"error": str(e)}, status=status.HTTP_401_UNAUTHORIZED)]
 
 
-
+"""
 def send_welcome_email(user_instance):
     html=render_to_string("Welcome.html",{"username":user_instance.username})
     
@@ -46,4 +47,20 @@ def send_welcome_email(user_instance):
         )
     email.attach_alternative(html, "text/html")
     email.send()
+"""
 
+
+
+def send_welcome_email(user_instance):
+    try:
+        html = render_to_string("Welcome.html", {"username": user_instance.username})
+        email = EmailMultiAlternatives(
+            subject="Welcome to Notenest",
+            body=strip_tags(html),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[user_instance.email],
+        )
+        email.attach_alternative(html, "text/html")
+        email.send()
+    except Exception:
+        logger.exception("Welcome email failed for %s", user_instance.email)

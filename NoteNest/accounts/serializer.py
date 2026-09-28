@@ -8,6 +8,7 @@ class Registerserializer(serializers.ModelSerializer):
         fields="__all__"
 
 
+
 class Profileserializer(serializers.ModelSerializer):
     class Meta:
         model=Profile

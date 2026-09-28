@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Userregister,Profile
+
 class Registerserializer(serializers.ModelSerializer):
     class Meta:
         model=Userregister

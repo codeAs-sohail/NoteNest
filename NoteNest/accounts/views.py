@@ -9,6 +9,7 @@ from .models import Userregister,Profile
 from .helper import get_user_from_token,send_welcome_email
 from rest_framework.permissions import IsAuthenticated
 from threading import Thread
+
 class Register(APIView):
     def post(self,request):
         username=request.data.get('username')

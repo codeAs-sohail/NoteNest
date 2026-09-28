@@ -200,6 +200,7 @@ class Downloads(APIView):
 
 
 class notification(APIView):
+    
     def get(self,request):
         service=Noteservice()
         notifi=service.get_notification(request)
