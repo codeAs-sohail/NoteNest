@@ -4,11 +4,13 @@ import { X, FileText, BookOpen, School, Loader2, UploadCloud, CheckCircle } from
 import noteService from '../services/noteService';
 import toast from 'react-hot-toast';
 import { parseBackendError } from '../utils/errorHandler';
+import useModalA11y from './ui/useModalA11y';
 
 const EditNoteModal = ({ isOpen, note, onClose, onUpdated }) => {
   const [form, setForm] = useState({ title: '', description: '', subject: '', university: '' });
   const [file, setFile] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const dialogRef = useModalA11y(isOpen, onClose);
 
   // Populate form when note changes
   useEffect(() => {
@@ -67,27 +69,32 @@ const EditNoteModal = ({ isOpen, note, onClose, onUpdated }) => {
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
         onClick={onClose}
+        role="presentation"
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-xl bg-[#0f172a] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl"
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="edit-note-title"
+          className="glass-strong w-full max-w-xl overflow-hidden rounded-2xl shadow-2xl"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-8 pt-8 pb-5 border-b border-white/5">
             <div>
-              <h2 className="text-xl font-black text-white">Edit Note</h2>
+              <h2 id="edit-note-title" className="text-xl font-semibold text-white">Edit Note</h2>
               <p className="text-slate-500 text-sm mt-0.5">Update your note details</p>
             </div>
-            <button onClick={onClose} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all">
+            <button onClick={onClose} aria-label="Close edit note dialog" className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white">
               <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-8 space-y-5">
+          <form onSubmit={handleSubmit}           className="space-y-5 p-5 sm:p-7">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Note Title</label>
               <div className="relative">
@@ -95,7 +102,7 @@ const EditNoteModal = ({ isOpen, note, onClose, onUpdated }) => {
                 <input
                   name="title" value={form.title} onChange={handleChange} required
                   placeholder="E.g. Data Structures Chapter 3"
-                  className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-sm font-medium"
+                  className="w-full bg-[#0a0b0f] border border-slate-800 text-white placeholder-slate-600 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-sm font-medium"
                 />
               </div>
             </div>
@@ -107,7 +114,7 @@ const EditNoteModal = ({ isOpen, note, onClose, onUpdated }) => {
                 <input
                   name="subject" value={form.subject} onChange={handleChange} required
                   placeholder="E.g. Computer Science"
-                  className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-sm font-medium"
+                  className="w-full bg-[#0a0b0f] border border-slate-800 text-white placeholder-slate-600 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-sm font-medium"
                 />
               </div>
             </div>
@@ -119,7 +126,7 @@ const EditNoteModal = ({ isOpen, note, onClose, onUpdated }) => {
                 <input
                   name="university" value={form.university} onChange={handleChange}
                   placeholder="E.g. MIT"
-                  className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-sm font-medium"
+                  className="w-full bg-[#0a0b0f] border border-slate-800 text-white placeholder-slate-600 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-sm font-medium"
                 />
               </div>
             </div>
@@ -129,7 +136,7 @@ const EditNoteModal = ({ isOpen, note, onClose, onUpdated }) => {
               <textarea
                 name="description" value={form.description} onChange={handleChange}
                 placeholder="Short description of the note..."
-                className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-sm font-medium min-h-[90px] resize-none"
+                className="w-full bg-[#0a0b0f] border border-slate-800 text-white placeholder-slate-600 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-sm font-medium min-h-[90px] resize-none"
               />
             </div>
 
@@ -137,7 +144,7 @@ const EditNoteModal = ({ isOpen, note, onClose, onUpdated }) => {
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Replace PDF (optional)</label>
               <label
-                className={`block border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${file ? 'border-teal-500/40 bg-teal-500/5' : 'border-slate-800 hover:border-indigo-500/50 hover:bg-white/2'}`}
+                className={`block border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${file ? 'border-teal-500/40 bg-teal-500/5' : 'border-slate-800 hover:border-blue-500/50 hover:bg-white/2'}`}
               >
                 <input type="file" accept="application/pdf" className="hidden" onChange={(e) => handleFile(e.target.files[0])} />
                 {file ? (
@@ -160,7 +167,7 @@ const EditNoteModal = ({ isOpen, note, onClose, onUpdated }) => {
               </button>
               <button
                 type="submit" disabled={isSaving}
-                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-400 hover:to-violet-500 text-white font-black text-sm transition-all shadow-[0_0_20px_-5px_rgba(99,102,241,0.4)] flex items-center justify-center gap-2"
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white font-semibold text-sm transition-all shadow-[0_0_20px_-5px_rgba(47,124,255,0.4)] flex items-center justify-center gap-2"
               >
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Changes'}
               </button>

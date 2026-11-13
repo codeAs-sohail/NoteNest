@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, Loader2, BookOpen, GraduationCap, X, Network } from 'lucide-react';
+import { Search, SlidersHorizontal, BookOpen, GraduationCap, X, Network, Sparkles } from 'lucide-react';
 import noteService from '../services/noteService';
 import NoteCard from '../components/NoteCard';
 import NoteModal from '../components/NoteModal';
 import EditNoteModal from '../components/EditNoteModal';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import EmptyState from '../components/ui/EmptyState';
+import Skeleton from '../components/ui/Skeleton';
+import Button from '../components/ui/Button';
 
 const Explore = () => {
   const [notes, setNotes] = useState([]);
@@ -33,10 +36,10 @@ const Explore = () => {
     return notesList.map(n => ({ ...n, is_liked: liked.has(n.id) }));
   };
 
-  const fetchNotes = async () => {
+  const fetchNotes = async (activeFilters = filters) => {
     setLoading(true);
     try {
-      const data = await noteService.getExploreNotes(filters);
+      const data = await noteService.getExploreNotes(activeFilters);
       // Stamp each note with is_liked from localStorage
       setNotes(applyLikedState(data.results || []));
     } catch (error) {
@@ -56,14 +59,14 @@ const Explore = () => {
   };
 
   const clearFilters = () => {
-    setFilters({ title: '', university: '', subject: '' });
-    fetchNotes();
+    const emptyFilters = { title: '', university: '', subject: '' };
+    setFilters(emptyFilters);
+    fetchNotes(emptyFilters);
   };
 
   const handleLike = async (id) => {
     try {
-      const response = await noteService.likeNote(id);
-      const likeData = response.data;
+      await noteService.likeNote(id);
 
       // The backend toggles: if a like existed, it deletes it (unlike) and returns the old record.
       // If no like existed, it creates one and returns the new record.
@@ -113,23 +116,24 @@ const Explore = () => {
     <div className="space-y-8 lg:space-y-12 pb-12 w-full">
       
       {/* Header & Search Command Bar */}
-      <div className="flex flex-col gap-6 bg-[#0f172a]/50 p-6 lg:p-8 rounded-[40px] border border-white/5 backdrop-blur-md">
+      <div className="glass-strong sticky top-[76px] z-30 flex flex-col gap-6 rounded-2xl p-5 sm:p-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
-               <Network className="w-8 h-8 text-indigo-400" />
-               <h2 className="text-4xl lg:text-5xl font-black text-white tracking-tighter leading-none">Global Archive</h2>
+               <Network className="h-6 w-6 text-blue-300" />
+               <h1 className="text-3xl font-semibold leading-none tracking-[-0.035em] text-white sm:text-4xl">Explore notes</h1>
             </div>
-            <p className="text-slate-400 font-medium text-lg ml-11">Search and discover notes from other students.</p>
+            <p className="ml-9 text-sm text-slate-400 sm:text-base">Find useful material shared by students.</p>
           </div>
           
           <form onSubmit={handleSearch} className="flex gap-3 w-full md:w-auto">
             <div className="relative flex-1 md:w-80">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
               <input 
                 type="text" 
                 placeholder="Search by title..." 
-                className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-2xl h-14 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all font-medium"
+                aria-label="Search notes by title"
+                className="input-premium h-11 w-full rounded-xl pl-10 pr-3.5 text-sm placeholder:text-slate-600 md:w-80"
                 value={filters.title}
                 onChange={(e) => setFilters({ ...filters, title: e.target.value })}
               />
@@ -137,11 +141,13 @@ const Explore = () => {
             <button 
               type="button"
               onClick={() => setShowFilters(!showFilters)}
-              className={`h-14 w-14 flex items-center justify-center rounded-2xl transition-all border ${showFilters ? 'bg-indigo-500 border-indigo-400 text-white' : 'bg-[#060c1c] border-slate-800 text-slate-400 hover:text-white'}`}
+              aria-label={showFilters ? 'Hide filters' : 'Show filters'}
+              aria-expanded={showFilters}
+              className={`flex h-11 w-11 items-center justify-center rounded-xl border transition ${showFilters ? 'border-blue-400/30 bg-blue-500/10 text-blue-200' : 'border-white/10 bg-white/[0.03] text-slate-400 hover:text-white'}`}
             >
-              <SlidersHorizontal className="w-5 h-5" />
+              <SlidersHorizontal className="h-4 w-4" />
             </button>
-            <button type="submit" className="bg-white text-[#060c1c] h-14 px-8 rounded-2xl text-base font-black hover:bg-slate-200 transition-colors shadow-lg">
+            <button type="submit" className="btn-primary h-11 rounded-xl px-5 text-sm font-medium">
                Search
             </button>
           </form>
@@ -163,7 +169,7 @@ const Explore = () => {
                     </label>
                     <input 
                       type="text" placeholder="E.g. Harvard..." 
-                      className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all font-medium text-sm" 
+                      className="input-premium w-full rounded-xl px-3.5 py-3 text-sm placeholder:text-slate-600"
                       value={filters.university} onChange={(e) => setFilters({ ...filters, university: e.target.value })}
                     />
                  </div>
@@ -173,13 +179,13 @@ const Explore = () => {
                     </label>
                     <input 
                       type="text" placeholder="E.g. Physics..." 
-                      className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all font-medium text-sm" 
+                      className="input-premium w-full rounded-xl px-3.5 py-3 text-sm placeholder:text-slate-600"
                       value={filters.subject} onChange={(e) => setFilters({ ...filters, subject: e.target.value })}
                     />
                  </div>
                  <div className="md:col-span-2 flex justify-end gap-4 mt-2">
-                    <button type="button" onClick={clearFilters} className="text-slate-400 font-bold hover:text-white transition-colors px-4 text-sm">Clear Filters</button>
-                    <button type="button" onClick={fetchNotes} className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-500 hover:text-white transition-all">Apply Filters</button>
+                    <button type="button" onClick={clearFilters} className="rounded-lg px-4 py-2.5 text-sm font-medium text-slate-400 transition hover:text-white">Clear all</button>
+                    <button type="button" onClick={() => fetchNotes()} className="btn-primary rounded-xl px-5 py-2.5 text-sm font-medium">Apply filters</button>
                  </div>
               </div>
             </motion.div>
@@ -188,13 +194,22 @@ const Explore = () => {
       </div>
 
       {/* Grid */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-slate-400">{loading ? 'Updating results…' : `${notes.length} ${notes.length === 1 ? 'note' : 'notes'} found`}</p>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(filters).filter(([, value]) => value.trim()).map(([key, value]) => (
+            <span key={key} className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs text-slate-300">
+              {value}<button type="button" onClick={() => { const next = { ...filters, [key]: '' }; setFilters(next); fetchNotes(next); }} aria-label={`Clear ${key} filter`}><X className="h-3 w-3" /></button>
+            </span>
+          ))}
+        </div>
+      </div>
       {loading ? (
-        <div className="h-96 flex flex-col items-center justify-center text-slate-500 gap-4">
-           <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
-           <p className="font-bold text-sm uppercase tracking-widest">Loading notes...</p>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((item) => <Skeleton key={item} className="h-60 rounded-2xl" />)}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {notes.length > 0 ? (
             notes.map(note => (
               <NoteCard 
@@ -209,14 +224,7 @@ const Explore = () => {
             ))
 
           ) : (
-            <div className="col-span-full h-96 flex flex-col items-center justify-center text-center p-12 bg-[#0f172a]/30 rounded-[40px] border border-white/5 backdrop-blur-sm">
-               <div className="bg-white/5 p-6 rounded-3xl mb-6 shadow-inner border border-white/5">
-                  <X className="w-10 h-10 text-slate-500" />
-               </div>
-               <h3 className="text-2xl font-black text-white mb-2">No Records Found</h3>
-               <p className="text-slate-400 font-medium max-w-sm">Try broadening your search to find more notes.</p>
-               <button onClick={clearFilters} className="mt-8 bg-white/5 text-white border border-white/10 px-8 py-3 rounded-2xl font-bold hover:bg-white/10 transition-all text-sm">Clear Search</button>
-            </div>
+            <EmptyState className="col-span-full" icon={Sparkles} title="No notes match your search" description="Try a different title, university, or subject—or clear the filters to see everything." action={<Button onClick={clearFilters}>Clear filters</Button>} />
           )}
         </div>
       )}

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { 
   ArrowLeft, Heart, MessageSquare, Download, Calendar, 
   School, Send, Loader2, BookOpen, User, Clock, FileText,
-  Edit2, Trash2
+  Edit2, Trash2, Check
 } from 'lucide-react';
 import noteService from '../services/noteService';
 import { useAuth } from '../context/AuthContext';
@@ -23,6 +23,7 @@ const NoteDetail = () => {
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [downloadState, setDownloadState] = useState('idle');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { user } = useAuth();
 
@@ -59,6 +60,18 @@ const NoteDetail = () => {
     }
   };
 
+  const handleDownload = async () => {
+    if (!note.pdf_file || downloadState === 'loading') return;
+    setDownloadState('loading');
+    try {
+      await downloadPdf(note.pdf_file, note.title, note.id);
+      setDownloadState('done');
+      window.setTimeout(() => setDownloadState('idle'), 1800);
+    } catch (error) {
+      setDownloadState('idle');
+    }
+  };
+
   const handleAddComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
@@ -79,7 +92,7 @@ const NoteDetail = () => {
 
   if (loading) return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
-      <Loader2 className="w-12 h-12 animate-spin text-indigo-500" />
+      <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
       <span className="text-slate-500 font-semibold text-sm">Loading note...</span>
     </div>
   );
@@ -121,30 +134,32 @@ const NoteDetail = () => {
             {/* Note Header Card */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-[#0f172a]/80 backdrop-blur-md rounded-[40px] p-8 lg:p-12 border border-white/5 shadow-2xl relative overflow-hidden"
+              className="glass relative overflow-hidden rounded-3xl p-6 sm:p-8 lg:p-10"
             >
-              <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none -translate-y-1/3 translate-x-1/3"></div>
-
               <div className="relative z-10 space-y-6">
                 {/* Subject Badge + Actions */}
                 <div className="flex flex-wrap justify-between items-start gap-4">
-                  <span className="bg-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-full border border-indigo-500/30">
+                  <span className="bg-blue-500/20 text-blue-300 text-[10px] font-semibold uppercase tracking-widest px-4 py-2 rounded-full border border-blue-500/30">
                     {note.subject || 'General'}
                   </span>
                   <div className="flex gap-3">
-                    <button
+                    <motion.button
+                      type="button"
+                      whileTap={{ scale: 0.94 }}
                       onClick={handleLike}
+                      aria-label={note.is_liked ? 'Unlike note' : 'Like note'}
+                      aria-pressed={Boolean(note.is_liked)}
                       className={`p-3 rounded-2xl border transition-all flex items-center gap-2 ${note.is_liked ? 'bg-rose-500/20 border-rose-500/30 text-rose-400' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
                     >
                       <Heart className={`w-5 h-5 ${note.is_liked ? 'fill-rose-500' : ''}`} />
                       <span className="font-bold">{note.likes_count || 0}</span>
-                    </button>
+                    </motion.button>
 
                     {isOwnNote && (
                       <>
                         <button
                           onClick={() => setIsEditModalOpen(true)}
-                          className="p-3 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500 hover:text-white rounded-2xl transition-all shadow-lg hover:shadow-indigo-500/20"
+                          className="p-3 bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white rounded-2xl transition-all shadow-lg hover:shadow-blue-500/20"
                           title="Edit note"
                         >
                           <Edit2 className="w-5 h-5" />
@@ -171,19 +186,21 @@ const NoteDetail = () => {
 
                     {note.pdf_file && (
                       <button
-                        onClick={() => downloadPdf(note.pdf_file, note.title, note.id)}
-                        className="p-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2"
+                        onClick={handleDownload}
+                        disabled={downloadState === 'loading'}
+                        aria-label="Download PDF"
+                        className="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2"
                       >
-                        <Download className="w-5 h-5" />
-                        <span className="font-bold text-sm hidden sm:block">Download</span>
+                        {downloadState === 'loading' ? <Loader2 className="h-5 w-5 animate-spin" /> : downloadState === 'done' ? <Check className="h-5 w-5" /> : <Download className="h-5 w-5" />}
+                        <span className="font-medium text-sm hidden sm:block">{downloadState === 'done' ? 'Ready' : 'Download'}</span>
                       </button>
                     )}
                   </div>
                 </div>
 
                 <h1
-                  className="text-3xl lg:text-5xl font-black text-white tracking-tight leading-[1.15]"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                  className="text-3xl lg:text-5xl font-semibold text-white tracking-tight leading-[1.15]"
+                  style={{ fontFamily: "'Geist', sans-serif" }}
                 >
                   {note.title}
                 </h1>
@@ -195,17 +212,17 @@ const NoteDetail = () => {
                 {/* Meta Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/5">
                   <MetaItem
-                    icon={<School className="w-4 h-4 text-indigo-400" />}
+                    icon={<School className="w-4 h-4 text-blue-400" />}
                     label="University"
                     value={note.university || 'Unknown'}
                   />
                   <MetaItem
-                    icon={<User className="w-4 h-4 text-violet-400" />}
+                    icon={<User className="w-4 h-4 text-blue-400" />}
                     label="Uploaded by"
                     value={`@${note.user_username || 'Student'}`}
                   />
                   <MetaItem
-                    icon={<Calendar className="w-4 h-4 text-fuchsia-400" />}
+                    icon={<Calendar className="w-4 h-4 text-cyan-400" />}
                     label="Date"
                     value={format(dateObj, 'MMM d, yyyy')}
                   />
@@ -222,10 +239,10 @@ const NoteDetail = () => {
 
           {/* Comments Side Panel */}
           <div className="w-full xl:w-[380px] shrink-0">
-            <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-white/5 rounded-[40px] p-6 flex flex-col xl:sticky xl:top-[120px]" style={{ maxHeight: 'calc(100vh - 140px)' }}>
+            <div className="glass-strong flex flex-col rounded-2xl p-5 xl:sticky xl:top-[88px]" style={{ maxHeight: 'calc(100vh - 104px)' }}>
               
-              <h3 className="text-lg font-black text-white flex items-center gap-3 mb-6 pb-5 border-b border-white/5 shrink-0">
-                <MessageSquare className="w-5 h-5 text-indigo-400" />
+              <h3 className="text-lg font-semibold text-white flex items-center gap-3 mb-6 pb-5 border-b border-white/5 shrink-0">
+                <MessageSquare className="w-5 h-5 text-blue-400" />
                 Comments
                 <span className="ml-auto bg-white/10 text-white text-xs px-2.5 py-1 rounded-full font-bold">{comments.length}</span>
               </h3>
@@ -235,14 +252,15 @@ const NoteDetail = () => {
                 <input 
                   type="text" 
                   placeholder="Write a comment..." 
-                  className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 pl-4 pr-14 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-sm font-medium"
+                  className="w-full bg-[#0a0b0f] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 pl-4 pr-14 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-sm font-medium"
+                  aria-label="Write a comment"
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                 />
                 <button 
                   type="submit" 
                   disabled={submitting || !newComment.trim()} 
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center transition-colors disabled:opacity-40"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-blue-600 hover:bg-blue-500 text-white rounded-xl flex items-center justify-center transition-colors disabled:opacity-40"
                 >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </button>
@@ -263,7 +281,7 @@ const NoteDetail = () => {
                       className="bg-white/5 p-4 rounded-2xl border border-white/5 hover:bg-white/8 transition-colors"
                     >
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-indigo-500 to-fuchsia-500 flex items-center justify-center text-[10px] font-black text-white shadow-lg shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-500 flex items-center justify-center text-[10px] font-semibold text-white shadow-lg shrink-0">
                           {(comment.sender || comment.sender_name || 'U')[0]?.toUpperCase()}
                         </div>
                         <span className="font-bold text-sm text-slate-200 truncate">{comment.sender || comment.sender_name || 'Student'}</span>

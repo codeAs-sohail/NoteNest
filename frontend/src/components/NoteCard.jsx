@@ -1,115 +1,136 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Download, School, Calendar, Trash2, Edit2 } from 'lucide-react';
+import { Heart, Download, School, Calendar, Trash2, Edit2, Loader2, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { downloadPdf } from '../utils/downloadPdf';
+import Avatar from './ui/Avatar';
 
 const NoteCard = ({ note, onLike, onDelete, onEdit, isOwnNote, onClick }) => {
-  const formattedDate = note.created_at 
+  const [downloadState, setDownloadState] = useState('idle');
+  const formattedDate = note.created_at
     ? formatDistanceToNow(new Date(note.created_at), { addSuffix: true })
     : 'Recently';
 
+  const handleDownload = async (event) => {
+    event.stopPropagation();
+    if (!note.pdf_file || downloadState === 'loading') return;
+    setDownloadState('loading');
+    try {
+      await downloadPdf(note.pdf_file, note.title || 'note', note.id);
+      setDownloadState('done');
+      window.setTimeout(() => setDownloadState('idle'), 1800);
+    } catch (error) {
+      setDownloadState('idle');
+    }
+  };
 
-
-  const handleDownload = (e) => {
-    e.stopPropagation();
-    if (!note.pdf_file) return;
-    downloadPdf(note.pdf_file, note.title || 'note', note.id);
+  const handleKeyDown = (event) => {
+    if (!onClick || event.target !== event.currentTarget) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onClick(note);
+    }
   };
 
   return (
-    <motion.div 
+    <motion.article
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
+      viewport={{ once: true, margin: '-50px' }}
       whileHover={{ y: -4 }}
-      transition={{ duration: 0.3 }}
-      className="group bg-[#0f172a]/80 backdrop-blur-md rounded-[28px] p-6 border border-white/5 hover:border-indigo-500/30 transition-all duration-300 relative flex flex-col h-[280px] shadow-lg hover:shadow-indigo-500/10 cursor-pointer"
-      onClick={() => onClick && onClick(note)}
+      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      className="glass-card cursor-spotlight group relative flex min-h-[248px] flex-col overflow-hidden p-5"
+      onMouseMove={(event) => {
+        const bounds = event.currentTarget.getBoundingClientRect();
+        event.currentTarget.style.setProperty('--x', `${event.clientX - bounds.left}px`);
+        event.currentTarget.style.setProperty('--y', `${event.clientY - bounds.top}px`);
+      }}
+      onClick={() => onClick?.(note)}
+      onKeyDown={handleKeyDown}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={onClick ? `Open note: ${note.title}` : undefined}
     >
-      {/* Top Meta */}
-      <div className="flex justify-between items-start mb-3">
-        <span className="bg-indigo-500/10 text-indigo-400 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-indigo-500/20">
+      <div className="flex items-start justify-between gap-3">
+        <span className="max-w-[65%] truncate rounded-full border border-blue-400/20 bg-blue-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-blue-200">
           {note.subject || 'General'}
         </span>
-        
         {isOwnNote ? (
-          <div className="flex gap-1.5 opacity-60 group-hover:opacity-100 transition-all duration-300">
+          <div className="flex gap-1 opacity-70 transition group-hover:opacity-100">
             {onEdit && (
               <button
-                onClick={(e) => { e.stopPropagation(); onEdit(note); }}
-                className="p-2.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500 hover:text-white rounded-xl transition-all shadow-lg hover:shadow-indigo-500/20"
+                type="button"
+                onClick={(event) => { event.stopPropagation(); onEdit(note); }}
+                aria-label={`Edit ${note.title}`}
                 title="Edit note"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-400 transition hover:border-blue-400/30 hover:bg-blue-500/10 hover:text-blue-200"
               >
-                <Edit2 className="w-3.5 h-3.5" />
+                <Edit2 className="h-3.5 w-3.5" />
               </button>
             )}
             <button
-              onClick={(e) => { e.stopPropagation(); onDelete && onDelete(note.id); }}
-              className="p-2.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white rounded-xl transition-all shadow-lg hover:shadow-rose-500/20"
+              type="button"
+              onClick={(event) => { event.stopPropagation(); onDelete?.(note.id); }}
+              aria-label={`Delete ${note.title}`}
               title="Delete note"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-400 transition hover:border-rose-400/30 hover:bg-rose-500/10 hover:text-rose-200"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="h-3.5 w-3.5" />
             </button>
           </div>
         ) : (
-          /* Owner name - small subtle badge */
-          <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-full bg-white/10 border border-white/5 flex items-center justify-center text-[9px] font-black text-slate-400">
-              {(note.user_username || 'S')[0].toUpperCase()}
-            </div>
-            <span className="text-[11px] font-semibold text-slate-500">
-              {note.user_username || 'Student'}
-            </span>
+          <div className="flex min-w-0 items-center gap-2">
+            <Avatar name={note.user_username || 'Student'} className="h-7 w-7 text-[10px]" />
+            <span className="max-w-24 truncate text-xs font-medium text-slate-400">{note.user_username || 'Student'}</span>
           </div>
         )}
       </div>
 
-      {/* Title - with display font */}
-      <div className="flex-1">
-        <h3
-          className="text-lg font-black text-white leading-snug mb-2 line-clamp-2"
-          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-        >
+      <div className="mt-4 flex-1">
+        <h3 className="line-clamp-2 text-[17px] font-semibold leading-snug tracking-[-0.02em] text-white">
           {note.title}
         </h3>
-        
-        <div className="space-y-1.5 mt-3">
-          <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
-            <School className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-            <span className="truncate">{note.university || 'Unknown University'}</span>
+        <div className="mt-4 space-y-2">
+          <div className="flex min-w-0 items-center gap-2 text-xs text-slate-400">
+            <School className="h-3.5 w-3.5 shrink-0 text-blue-300" />
+            <span className="truncate">{note.university || 'University not specified'}</span>
           </div>
-          <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
-            <Calendar className="w-3.5 h-3.5 shrink-0" />
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <Calendar className="h-3.5 w-3.5 shrink-0" />
             <span>{formattedDate}</span>
           </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="pt-4 mt-auto border-t border-white/5 flex items-center justify-between">
-        <button 
-          onClick={(e) => { e.stopPropagation(); onLike && onLike(note.id); }}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all duration-200 ${
-            note.is_liked 
-              ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20' 
-              : 'text-slate-500 hover:bg-white/5 hover:text-rose-400 border border-transparent'
+      <div className="mt-4 flex items-center justify-between border-t border-white/[0.07] pt-3">
+        <motion.button
+          type="button"
+          whileTap={{ scale: 0.92 }}
+          onClick={(event) => { event.stopPropagation(); onLike?.(note.id); }}
+          aria-label={`${note.is_liked ? 'Unlike' : 'Like'} ${note.title}`}
+          aria-pressed={Boolean(note.is_liked)}
+          className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm transition ${
+            note.is_liked ? 'bg-rose-500/10 text-rose-300' : 'text-slate-500 hover:bg-white/[0.05] hover:text-rose-300'
           }`}
         >
-          <Heart className={`w-4 h-4 transition-all ${note.is_liked ? 'fill-rose-500 text-rose-500 scale-110' : ''}`} />
-          <span className={`text-sm font-bold ${note.is_liked ? 'text-rose-400' : ''}`}>{note.likes_count || 0}</span>
-        </button>
-
+          <motion.span animate={note.is_liked ? { scale: [1, 1.28, 1] } : { scale: 1 }} transition={{ duration: 0.25 }}>
+            <Heart className={`h-4 w-4 ${note.is_liked ? 'fill-rose-500 text-rose-400' : ''}`} />
+          </motion.span>
+          <span className="font-medium">{note.likes_count || 0}</span>
+        </motion.button>
         {note.pdf_file && (
           <button
+            type="button"
             onClick={handleDownload}
-            className="w-9 h-9 bg-white/5 border border-white/10 text-slate-400 rounded-xl flex items-center justify-center hover:bg-indigo-500 hover:text-white hover:border-indigo-400 active:scale-95 transition-all"
-            title="Download PDF"
+            aria-label={`Download PDF: ${note.title}`}
+            title={downloadState === 'done' ? 'Download ready' : 'Download PDF'}
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-400 transition hover:border-blue-400/30 hover:bg-blue-500/10 hover:text-blue-200 active:scale-95"
           >
-            <Download className="w-3.5 h-3.5" />
+            {downloadState === 'loading' ? <Loader2 className="h-4 w-4 animate-spin" /> : downloadState === 'done' ? <Check className="h-4 w-4 text-teal-300" /> : <Download className="h-4 w-4" />}
           </button>
         )}
       </div>
-    </motion.div>
+    </motion.article>
   );
 };
 

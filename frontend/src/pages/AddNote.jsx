@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  UploadCloud, FileText, CheckCircle, Loader2, BookOpen, School, File
+  UploadCloud, FileText, CheckCircle, Loader2, BookOpen, School, File, X
 } from 'lucide-react';
 import noteService from '../services/noteService';
 import toast from 'react-hot-toast';
@@ -65,21 +65,19 @@ const AddNote = () => {
     <div className="w-full flex items-center justify-center min-h-[calc(100vh-200px)]">
       <motion.div 
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-        className="w-full max-w-[1000px] bg-[#0f172a]/80 backdrop-blur-xl border border-white/5 rounded-[40px] shadow-2xl overflow-hidden flex flex-col lg:flex-row relative"
+        className="glass-strong w-full max-w-5xl overflow-hidden rounded-3xl shadow-2xl lg:flex"
       >
-        {/* Abstract BG */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-
         {/* Left Side: Upload Zone */}
-        <div className="w-full lg:w-5/12 p-8 lg:p-12 border-b lg:border-b-0 lg:border-r border-white/5 bg-[#060c1c]/40 flex flex-col justify-center">
+        <div className="flex w-full flex-col justify-center border-b border-white/[0.07] bg-white/[0.015] p-6 sm:p-8 lg:w-5/12 lg:border-b-0 lg:border-r lg:p-10">
            <div className="mb-8">
-              <h2 className="text-3xl font-black text-white mb-2">Upload Note</h2>
-              <p className="text-slate-400 font-medium text-sm leading-relaxed">Share your notes with the community. Please ensure documents do not contain personal info.</p>
+              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-blue-300">Contribute to the library</p>
+              <h1 className="text-2xl font-semibold tracking-tight text-white">Upload a note</h1>
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">Share a course document with the community. Check that the PDF does not contain personal information.</p>
            </div>
 
            <div 
-             className={`relative h-64 border-2 border-dashed rounded-[32px] flex flex-col items-center justify-center p-6 text-center transition-all duration-300 overflow-hidden ${
-               isDragging ? 'border-indigo-400 bg-indigo-500/10' : file ? 'border-teal-500/50 bg-teal-500/5' : 'border-slate-800 bg-[#0f172a] hover:border-indigo-500/50 hover:bg-[#0f172a]/80'
+             className={`relative min-h-60 rounded-2xl border border-dashed p-6 transition-all duration-200 focus-within:ring-2 focus-within:ring-blue-400/50 ${
+               isDragging ? 'border-blue-300 bg-blue-500/[0.08]' : file ? 'border-teal-400/40 bg-teal-500/[0.04]' : 'border-white/15 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.04]'
              }`}
              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
              onDragLeave={() => setIsDragging(false)}
@@ -88,6 +86,7 @@ const AddNote = () => {
              <input 
                type="file" 
                accept="application/pdf" 
+               aria-label="Choose a PDF file"
                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                onChange={(e) => handleFile(e.target.files[0])}
                disabled={isUploading}
@@ -95,21 +94,23 @@ const AddNote = () => {
              
              <AnimatePresence mode="wait">
                {file ? (
-                 <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="flex flex-col items-center z-0">
-                    <div className="w-16 h-16 bg-teal-500/20 text-teal-400 rounded-2xl flex items-center justify-center mb-4 border border-teal-500/30">
-                       <CheckCircle className="w-8 h-8" />
+                 <motion.div initial={{ scale: 0.96, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.96, opacity: 0 }} className="flex w-full flex-col items-center">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-teal-400/20 bg-teal-500/10 text-teal-300">
+                       <CheckCircle className="h-6 w-6" />
                     </div>
-                    <p className="font-black text-white text-lg truncate w-full px-4">{file.name}</p>
-                    <p className="text-xs font-bold text-teal-400 uppercase tracking-widest mt-1">Ready for Upload</p>
+                    <p className="w-full truncate px-4 text-sm font-medium text-white">{file.name}</p>
+                    <p className="mt-1 text-xs text-teal-300">PDF · {(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                    <button type="button" onClick={(event) => { event.stopPropagation(); setFile(null); }} className="relative z-20 mt-3 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-400 transition hover:bg-white/[0.06] hover:text-white">
+                      <X className="h-3.5 w-3.5" /> Remove file
+                    </button>
                  </motion.div>
                ) : (
-                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center z-0">
-                    <div className="w-16 h-16 bg-white/5 text-slate-400 rounded-2xl flex items-center justify-center mb-4 border border-slate-800">
-                       <UploadCloud className="w-8 h-8" />
+                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pointer-events-none flex flex-col items-center">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-slate-300">
+                       <UploadCloud className="h-6 w-6" />
                     </div>
-                    <p className="font-bold text-slate-300">Drag & Drop PDF Document</p>
-                    <p className="text-sm font-medium text-slate-500 mt-1 mb-4">or click to browse filesystem</p>
-                    <span className="text-[10px] font-black uppercase tracking-widest bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700">Max 50MB</span>
+                    <p className="text-sm font-medium text-slate-200">Drop a PDF here, or browse</p>
+                    <p className="mb-1 mt-2 text-xs text-slate-500">PDF files only</p>
                  </motion.div>
                )}
              </AnimatePresence>
@@ -117,28 +118,28 @@ const AddNote = () => {
         </div>
 
         {/* Right Side: Form */}
-        <div className="w-full lg:w-7/12 p-8 lg:p-12 relative z-10">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="relative z-10 w-full p-6 sm:p-8 lg:w-7/12 lg:p-10">
+          <form onSubmit={handleSubmit} className="space-y-5">
             
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Note Title</label>
+              <label className="text-xs font-medium text-slate-300">Note title</label>
               <div className="relative group">
-                <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-violet-400 transition-colors" />
+                <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                 <input 
                   type="text" name="title" required placeholder="Machine Learning Lecture 01"
-                  className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all font-medium text-sm"
+                  className="input-premium w-full rounded-xl py-3 pl-10 pr-3.5 text-sm placeholder:text-slate-600"
                   value={formData.title} onChange={handleInputChange} disabled={isUploading}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Description</label>
+              <label className="text-xs font-medium text-slate-300">Description</label>
               <div className="relative group">
-                <File className="absolute left-4 top-4 w-5 h-5 text-slate-500 group-focus-within:text-violet-400 transition-colors" />
+                <File className="absolute left-4 top-4 w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                 <textarea 
                   name="description" placeholder="Notes covering the foundations of neural networks..."
-                  className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all font-medium text-sm min-h-[100px] resize-none"
+                  className="input-premium min-h-28 w-full resize-y rounded-xl py-3 pl-10 pr-3.5 text-sm placeholder:text-slate-600"
                   value={formData.description} onChange={handleInputChange} disabled={isUploading}
                 />
               </div>
@@ -146,24 +147,24 @@ const AddNote = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Subject</label>
+                <label className="text-xs font-medium text-slate-300">Subject</label>
                 <div className="relative group">
-                  <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-violet-400 transition-colors" />
+                  <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                   <input 
                     type="text" name="subject" required placeholder="Computer Science"
-                    className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all font-medium text-sm"
+                    className="w-full bg-[#0a0b0f] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-medium text-sm"
                     value={formData.subject} onChange={handleInputChange} disabled={isUploading}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">University</label>
+                <label className="text-xs font-medium text-slate-300">University</label>
                 <div className="relative group">
-                  <School className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-violet-400 transition-colors" />
+                  <School className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                   <input 
                     type="text" name="university" placeholder="MIT"
-                    className="w-full bg-[#060c1c] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all font-medium text-sm"
+                    className="w-full bg-[#0a0b0f] border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-medium text-sm"
                     value={formData.university} onChange={handleInputChange} disabled={isUploading}
                   />
                 </div>
@@ -172,11 +173,11 @@ const AddNote = () => {
 
             <div className="pt-4">
                {isUploading ? (
-                 <div className="w-full bg-[#060c1c] rounded-2xl p-4 border border-indigo-500/30 overflow-hidden relative">
+                 <div className="relative w-full overflow-hidden rounded-xl border border-blue-400/20 bg-white/[0.03] p-4">
                     {/* Indeterminate shimmer — loops honestly while Supabase uploads */}
                     <div className="absolute top-0 left-0 h-full w-full overflow-hidden z-0">
                       <div
-                        className="h-full bg-gradient-to-r from-indigo-600 via-violet-500 to-indigo-600"
+                        className="h-full bg-blue-500/40"
                         style={{
                           width: '60%',
                           animation: 'shimmer 1.6s ease-in-out infinite',
@@ -186,14 +187,14 @@ const AddNote = () => {
                     </div>
                     <div className="relative z-10 flex items-center gap-2 text-white font-bold text-sm">
                        <Loader2 className="w-4 h-4 animate-spin" />
-                       <span>Uploading to Supabase… this may take a moment</span>
+                       <span>Uploading your PDF… this may take a moment</span>
                     </div>
                  </div>
                ) : (
                 <button 
                   type="submit" 
                   disabled={!file}
-                  className="w-full bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-400 hover:to-violet-500 text-white py-4 rounded-2xl font-black text-lg transition-all shadow-[0_0_30px_-5px_rgba(99,102,241,0.5)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2"
+                  className="btn-primary flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-medium disabled:opacity-50"
                 >
                   <UploadCloud className="w-5 h-5" /> Upload Note
                 </button>

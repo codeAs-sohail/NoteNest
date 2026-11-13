@@ -1,23 +1,22 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { LogIn, User, Lock, Mail, Loader2, BookOpen, ArrowRight, ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { LogIn, User, Lock, Mail, Loader2, BookOpen, ArrowRight, ShieldCheck, Eye, EyeOff, FileText, Search, GraduationCap } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import { parseBackendError } from '../../utils/errorHandler';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setIsLoading(true);
     try {
       await login(formData.username, formData.email, formData.password);
@@ -30,170 +29,78 @@ const Login = () => {
     }
   };
 
-  // Animation variants
-  const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
-  };
-
   return (
-    <div className="min-h-screen w-full flex bg-[#0f172a] overflow-hidden sm:p-4 lg:p-8">
-      
-      {/* Main Container - Glassmorphism Card */}
-      <div className="w-full max-w-[1400px] mx-auto bg-slate-900/50 sm:rounded-[40px] border border-white/5 flex flex-col lg:flex-row overflow-hidden shadow-2xl shadow-indigo-500/10 backdrop-blur-2xl relative">
-        
-        {/* Background Gradients */}
-        <div className="absolute top-0 right-1/2 w-[800px] h-[800px] bg-indigo-500/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-violet-600/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4 pointer-events-none"></div>
-
-        {/* Left Side: Branding & Visuals */}
-        <div className="w-full lg:w-5/12 p-10 lg:p-16 flex flex-col justify-between relative z-10 hidden lg:flex border-r border-white/5 bg-slate-900/40">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
-            <Link to="/" className="flex items-center gap-3 group w-fit">
-              <div className="bg-gradient-to-tr from-indigo-600 to-violet-500 p-3 rounded-2xl shadow-lg shadow-indigo-500/30 group-hover:rotate-12 transition-all duration-300">
-                <BookOpen className="w-8 h-8 text-white" />
-              </div>
-              <span className="text-3xl font-black tracking-tighter text-white">NoteNest</span>
-            </Link>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="space-y-6"
-          >
-            <h1 className="text-5xl xl:text-6xl font-black text-white leading-[1.1] tracking-tight">
-              Unlock the <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">Master Archive.</span>
-            </h1>
-            <p className="text-lg text-slate-400 font-medium max-w-sm leading-relaxed">
-              Login to access thousands of premium academic notes, curated by top students worldwide.
-            </p>
-
-            {/* Feature Pills */}
-            <div className="flex flex-wrap gap-3 pt-6">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-slate-300 text-sm font-semibold backdrop-blur-md">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" /> Secure Sync
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-slate-300 text-sm font-semibold backdrop-blur-md">
-                <BookOpen className="w-4 h-4 text-indigo-400" /> PDF Previews
-              </div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Right Side: Form */}
-        <div className="w-full lg:w-7/12 p-8 sm:p-12 lg:p-20 flex items-center justify-center relative z-10">
-          
-          {/* Mobile Header */}
-          <div className="absolute top-8 left-8 lg:hidden">
-             <Link to="/" className="flex items-center gap-3">
-              <div className="bg-gradient-to-tr from-indigo-600 to-violet-500 p-2 rounded-xl shadow-lg shadow-indigo-500/30">
-                <BookOpen className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-2xl font-black tracking-tighter text-white">NoteNest</span>
-            </Link>
+    <main className="relative flex min-h-screen items-stretch overflow-hidden bg-[#0a0b0f]">
+      <div className="ambient-background" />
+      <section className="relative z-10 hidden w-[46%] flex-col justify-between border-r border-white/[0.07] bg-white/[0.015] p-12 xl:flex">
+        <Link to="/" className="flex w-fit items-center gap-2.5 text-white">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]"><BookOpen className="h-5 w-5" /></span>
+          <span className="text-lg font-semibold tracking-tight">NoteNest</span>
+        </Link>
+        <div className="max-w-xl">
+          <p className="mb-5 text-xs font-semibold uppercase tracking-[0.16em] text-blue-300">A better way to study together</p>
+          <h1 className="text-5xl font-semibold leading-[1.08] tracking-[-0.04em] text-white 2xl:text-6xl">
+            Good notes make<br />great ideas <span className="text-blue-300">travel.</span>
+          </h1>
+          <p className="mt-5 max-w-md text-base leading-relaxed text-slate-400">Find useful course notes, share what you know, and keep your learning in one thoughtful space.</p>
+          <div className="mt-10 grid gap-3">
+            <Feature icon={ShieldCheck} title="Your study space, kept simple" text="Keep your profile and notes organized in one place." />
+            <Feature icon={Search} title="Search across subjects" text="Find material by title, university, or subject." />
+            <Feature icon={GraduationCap} title="Learn from other students" text="Discover notes shared by your academic community." />
           </div>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-slate-500"><FileText className="h-4 w-4" /> Study, shared.</div>
+      </section>
 
-          <motion.div 
-            variants={staggerContainer}
-            initial="hidden"
-            animate="show"
-            className="w-full max-w-md w-full"
-          >
-            <motion.div variants={fadeUp} className="mb-10 text-center lg:text-left mt-16 lg:mt-0">
-              <h2 className="text-3xl font-black text-white mb-3">Welcome Back</h2>
-              <p className="text-slate-400 font-medium">Continue your academic journey.</p>
-            </motion.div>
-
-            <motion.form variants={staggerContainer} onSubmit={handleSubmit} className="space-y-5">
-              
-              <motion.div variants={fadeUp} className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Username</label>
-                <div className="relative group">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
-                  <input
-                    type="text"
-                    name="username"
-                    required
-                    placeholder="E.g. johndoe"
-                    className="w-full bg-slate-950/50 border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all font-medium"
-                    value={formData.username}
-                    onChange={handleInputChange}
-                  />
+      <section className="relative z-10 flex min-h-screen flex-1 items-center justify-center px-5 py-12 sm:px-8">
+        <div className="w-full max-w-[440px]">
+          <Link to="/" className="mb-10 inline-flex items-center gap-2.5 text-white xl:hidden">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]"><BookOpen className="h-4 w-4" /></span>
+            <span className="font-semibold tracking-tight">NoteNest</span>
+          </Link>
+          <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
+            <div className="mb-8">
+              <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-blue-300"><LogIn className="h-5 w-5" /></span>
+              <h2 className="text-3xl font-semibold tracking-[-0.035em] text-white">Welcome back</h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">Sign in to pick up where you left off.</p>
+            </div>
+            <form onSubmit={handleSubmit} className="glass-strong space-y-5 rounded-2xl p-5 sm:p-7">
+              <Field label="Username">
+                <Input icon={User} name="username" required autoComplete="username" placeholder="Your username" value={formData.username} onChange={(event) => setFormData({ ...formData, username: event.target.value })} />
+              </Field>
+              <Field label="Email">
+                <Input icon={Mail} type="email" name="email" required autoComplete="email" placeholder="you@university.edu" value={formData.email} onChange={(event) => setFormData({ ...formData, email: event.target.value })} />
+              </Field>
+              <Field label="Password">
+                <div className="relative">
+                  <Input icon={Lock} type={showPassword ? 'text' : 'password'} name="password" required autoComplete="current-password" placeholder="Your password" value={formData.password} onChange={(event) => setFormData({ ...formData, password: event.target.value })} className="pr-11" />
+                  <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition hover:bg-white/[0.06] hover:text-white">
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
-              </motion.div>
-
-              <motion.div variants={fadeUp} className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Email</label>
-                <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    placeholder="account@university.edu"
-                    className="w-full bg-slate-950/50 border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all font-medium"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </motion.div>
-
-              <motion.div variants={fadeUp} className="space-y-2">
-                <div className="flex justify-between items-center ml-1">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</label>
-                  <a href="#" className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors">Forgot?</a>
-                </div>
-                <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
-                  <input
-                    type="password"
-                    name="password"
-                    required
-                    placeholder="••••••••"
-                    className="w-full bg-slate-950/50 border border-slate-800 text-white placeholder-slate-600 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all font-medium"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </motion.div>
-
-              <motion.div variants={fadeUp} className="pt-4">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-400 hover:to-violet-500 text-white rounded-2xl py-4 font-black text-lg flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_0_40px_-10px_rgba(99,102,241,0.5)] active:scale-[0.98]"
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                  ) : (
-                    <>
-                      <span>Enter NoteNest</span>
-                      <ArrowRight className="w-5 h-5" />
-                    </>
-                  )}
-                </button>
-              </motion.div>
-            </motion.form>
-
-            <motion.p variants={fadeUp} className="mt-10 text-center text-sm font-medium text-slate-500">
-              New to the platform?{' '}
-              <Link to="/register" className="text-indigo-400 hover:text-indigo-300 font-bold transition-colors">
-                Create an account
-              </Link>
-            </motion.p>
+              </Field>
+              <Button variant="primary" type="submit" disabled={isLoading} className="w-full py-3.5">
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Sign in <ArrowRight className="h-4 w-4" /></>}
+              </Button>
+              <p className="text-center text-xs leading-relaxed text-slate-500"><ShieldCheck className="mr-1 inline h-3.5 w-3.5" /> Your account is protected by secure authentication.</p>
+            </form>
+            <p className="mt-6 text-center text-sm text-slate-400">New to NoteNest? <Link to="/register" className="font-semibold text-blue-300 transition hover:text-blue-200">Create an account</Link></p>
           </motion.div>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
+
+const Feature = ({ icon: Icon, title, text }) => (
+  <div className="flex items-start gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] p-3.5">
+    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-300"><Icon className="h-4 w-4" /></span>
+    <div><p className="text-sm font-medium text-slate-200">{title}</p><p className="mt-1 text-xs leading-relaxed text-slate-500">{text}</p></div>
+  </div>
+);
+
+const Field = ({ label, children }) => (
+  <label className="block space-y-2"><span className="text-xs font-medium text-slate-300">{label}</span>{children}</label>
+);
 
 export default Login;
