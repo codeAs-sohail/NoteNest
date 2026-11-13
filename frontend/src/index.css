@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Geist", "Inter", sans-serif;
-  --font-display: "Geist", "Inter", sans-serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --color-accent: #2f7cff;
   --color-accent-hover: #4a90ff;
   --color-success: #2dd4bf;
@@ -15,7 +15,7 @@
 
 :root {
   color-scheme: dark;
-  font-family: "Geist", "Inter", sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

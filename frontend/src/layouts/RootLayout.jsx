@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate, useLocation, Link } from 'react-router-do
 import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import {
   Home, Search, User, Bell, LogOut, Plus, FileText, Menu, X,
-  Heart, MessageSquare, CheckCheck, Settings, Command
+  Heart, MessageSquare, CheckCheck, Settings, Command, Loader2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
@@ -23,7 +23,7 @@ const RootLayout = () => {
   });
 
   const { user, logout } = useAuth();
-  const { notifications, unreadCount, markAsRead } = useNotifications();
+  const { notifications, unreadCount, isLoading: isLoadingNotifications, markAsRead, refreshNotifications } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
   const notifRef = useRef(null);
@@ -77,15 +77,18 @@ const RootLayout = () => {
     navigate('/login');
   };
 
-  const markAllAsSeen = () => {
-    markAsRead();
-    setSeenIds(new Set(notifications.map((item) => String(item.id))));
+  const markAllAsSeen = (items = notifications) => {
+    markAsRead(items);
+    setSeenIds(new Set(items.map((item) => String(item.id))));
   };
 
-  const toggleNotifications = () => {
+  const toggleNotifications = async () => {
     const opening = !isNotifOpen;
     setIsNotifOpen(opening);
-    if (opening && unreadCount > 0) markAllAsSeen();
+    if (opening) {
+      const items = await refreshNotifications(true);
+      if (items) markAllAsSeen(items);
+    }
   };
 
   return (
@@ -170,7 +173,7 @@ const RootLayout = () => {
                       <div>
                         <h3 className="text-sm font-semibold text-white">Activity</h3>
                         <p className="mt-1 text-xs text-slate-500">
-                          {notifications.length ? `${notifications.length} recent interactions` : 'No activity yet'}
+                          {isLoadingNotifications ? 'Refreshing activity…' : notifications.length ? `${notifications.length} recent interactions` : 'No activity yet'}
                         </p>
                       </div>
                       {notifications.length > 0 && (
@@ -180,7 +183,11 @@ const RootLayout = () => {
                       )}
                     </div>
                     <div className="max-h-[min(420px,65vh)] overflow-y-auto p-2">
-                      {notifications.length ? notifications.map((item, index) => {
+                      {isLoadingNotifications && !notifications.length ? (
+                        <div className="flex items-center justify-center gap-2 px-4 py-10 text-sm text-slate-400">
+                          <Loader2 className="h-4 w-4 animate-spin" /> Loading activity
+                        </div>
+                      ) : notifications.length ? notifications.map((item, index) => {
                         const isComment = item.type === 'comment';
                         const isUnseen = !seenIds.has(String(item.id));
                         const timeLabel = item.created_at ? formatDistanceToNow(new Date(item.created_at), { addSuffix: true }) : null;

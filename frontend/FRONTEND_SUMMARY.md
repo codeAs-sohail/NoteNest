@@ -16,7 +16,7 @@ NoteNest is a student-focused academic notes platform. Users can register and si
 - Axios handles API requests; `date-fns` formats dates; `react-hot-toast` provides toast notifications.
 - From `frontend/`, run `npm install`, `npm run dev`, `npm run build`, or `npm run preview`. Vite's production output is the usual `dist/` directory.
 - During development, `/api` is proxied to `http://localhost:8000` by `vite.config.js`. `VITE_API_URL` can override the API base URL; otherwise the client uses `/api`.
-- `index.html` loads Outfit and Plus Jakarta Sans from Google Fonts.
+- Typography uses an Inter-first local/system font stack, avoiding a remote font request on startup.
 
 ## App structure
 
@@ -52,6 +52,7 @@ Unknown routes redirect to `/`. `ProtectedRoute` waits for auth initialization a
 - Explore searches by title, university, and subject. Note cards support opening details, likes, owner edit/delete actions, and PDF download.
 - Note detail and the note modal support comments. PDF downloads use the browser `fetch`/blob flow and attempt to record a download.
 - The notification context combines backend like notifications with comments found on the current user's notes, marks items as seen in local storage, and refreshes once per minute while signed in.
+- Startup and periodic notification refreshes load likes only; per-note comments are fetched when the notification menu opens to reduce startup requests.
 
 ## Visual system: current colors and type
 
@@ -62,7 +63,7 @@ The interface is dark-first; there is no visible theme toggle.
 - Primary accent: azure `#2f7cff`, hover `#4a90ff`; use gradients sparingly for primary actions only.
 - Semantic colors: teal `#2dd4bf` for success/download, rose `#f43f5e` for like/danger, amber `#f59e0b` for warning.
 - Primary text: `#f4f5f7`; secondary: `#a1a7b3`; muted: `#6b7280`.
-- Body and headings use **Geist**, with **Inter** as fallback. Heading weights are moderate (typically 600), with tight tracking.
+- Body and headings use an **Inter-first system font stack** with native sans-serif fallbacks; no remote font is required. Heading weights are moderate (typically 600), with tight tracking.
 - Common visual traits: restrained glass surfaces, subtle azure/teal ambient lighting, thin borders, low-opacity shadows, Lucide icons, and responsive Tailwind layouts. Corner radii top out around 24px.
 - `index.css` is the canonical token source. `tailwind.config.js` is kept minimal and does not define a competing color palette.
 
@@ -83,4 +84,4 @@ The interface is dark-first; there is no visible theme toggle.
 
 ## Guidance for Claude
 
-Before implementing a requested change, trace the active route/component and existing API flow rather than assuming a similarly named legacy file is live. Keep the near-black/azure palette, Geist typography, responsive behavior, keyboard focus treatment, and reduced-motion support consistent. Do not silently change route/API contracts; call out the route and refresh-token caveats above if the requested feature touches them.
+Before implementing a requested change, trace the active route/component and existing API flow rather than assuming a similarly named legacy file is live. Keep the near-black/azure palette, Inter-first system typography, responsive behavior, keyboard focus treatment, and reduced-motion support consistent. Do not silently change route/API contracts; call out the route and refresh-token caveats above if the requested feature touches them.

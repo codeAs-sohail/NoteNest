@@ -133,38 +133,38 @@ const Profile = () => {
   const fadeUp = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 
   return (
-    <div className="space-y-10 lg:space-y-16 pb-20 w-full">
+    <div className="w-full space-y-8 pb-12 lg:space-y-10">
       
       <motion.section 
         id="overview"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="glass relative overflow-hidden rounded-3xl p-5 sm:p-8 lg:p-10"
+        transition={{ duration: 0.35 }}
+        className="glass relative overflow-hidden rounded-2xl p-4 sm:p-6 lg:p-7"
       >
         
-        <div className="flex flex-col lg:flex-row gap-12 items-center lg:items-start relative z-10 w-full">
+        <div className="relative z-10 flex w-full flex-col items-center gap-6 sm:flex-row sm:items-start lg:gap-8">
           
           {/* Hologram Avatar */}
           <div className="relative shrink-0">
-            <div className="w-40 h-40 rounded-3xl bg-gradient-to-br from-[#0a0b0f] to-[#101218] border border-white/10 flex items-center justify-center text-white shadow-2xl relative z-10 overflow-hidden group">
-               <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-cyan-500/20 z-0 group-hover:scale-110 transition-transform duration-500"></div>
-               <span className="text-6xl font-semibold relative z-10 text-blue-200">{user?.username?.charAt(0).toUpperCase()}</span>
+            <div className="relative z-10 flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[#101218] text-white shadow-lg transition-transform duration-300 sm:h-24 sm:w-24">
+               <div className="absolute inset-0 z-0 bg-gradient-to-tr from-blue-500/15 to-cyan-500/10"></div>
+               <span className="relative z-10 text-3xl font-semibold text-blue-100 sm:text-4xl">{user?.username?.charAt(0).toUpperCase()}</span>
             </div>
-            <div className="absolute -bottom-4 -right-4 bg-gradient-to-r from-emerald-400 to-teal-500 text-white p-3 rounded-2xl border-4 border-[#101218] z-20 shadow-xl">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="absolute -bottom-2 -right-2 z-20 rounded-lg border-2 border-[#101218] bg-teal-500 p-1.5 text-white shadow-lg">
+              <ShieldCheck className="h-4 w-4" />
             </div>
           </div>
 
-          <div className="flex-1 w-full text-center lg:text-left space-y-6">
-            <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start gap-4">
+          <div className="w-full flex-1 space-y-4 text-center sm:text-left">
+            <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:items-start">
               <div>
-                <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-3">
-                  <h2 className="text-5xl font-semibold text-white tracking-[-0.03em]">{user?.username}</h2>
-                  <span className="bg-blue-500/10 text-blue-400 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest border border-blue-500/30 w-fit self-center lg:self-auto shadow-inner">Authenticated</span>
+                <div className="mb-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                  <h1 className="text-2xl font-semibold tracking-[-0.03em] text-white sm:text-3xl">{user?.username}</h1>
+                  <span className="w-fit rounded-full border border-blue-500/25 bg-blue-500/10 px-2.5 py-1 text-[10px] font-medium text-blue-200">Member</span>
                 </div>
                 {!isEditing && (
-                  <p className="text-slate-400 font-medium text-lg leading-relaxed max-w-2xl">
+                  <p className="max-w-2xl text-sm leading-relaxed text-slate-400">
                     {user?.bio || "Add a short bio to tell other students about your studies."}
                   </p>
                 )}
@@ -173,7 +173,7 @@ const Profile = () => {
               {!isEditing ? (
                 <button 
                   onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-bold transition-all text-sm shrink-0"
+                  className="flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm font-medium text-white transition hover:bg-white/[0.08]"
                 >
                   <Edit3 className="w-4 h-4" /> Edit Profile
                 </button>
@@ -188,7 +188,7 @@ const Profile = () => {
                   <button 
                     onClick={handleSaveProfile}
                     disabled={isSaving}
-                    className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white rounded-xl font-bold transition-all text-sm shadow-[0_0_20px_-5px_rgba(47,124,255,0.5)]"
+                    className="btn-primary flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium"
                   >
                     {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save
                   </button>
@@ -203,15 +203,15 @@ const Profile = () => {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2"
+                  className="flex flex-wrap items-center justify-center gap-2 pt-1 sm:justify-start"
                 >
-                  <div className="flex items-center gap-3 text-slate-300 font-medium bg-[#0a0b0f]/50 p-3.5 rounded-2xl border border-white/5">
-                    <Mail className="w-5 h-5 text-blue-400" />
-                    <span className="text-sm">{user?.email}</span>
+                  <div className="flex items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-slate-300">
+                    <Mail className="h-4 w-4 text-blue-300" />
+                    <span className="max-w-[240px] truncate text-xs sm:text-sm">{user?.email}</span>
                   </div>
-                  <div className="flex items-center gap-3 text-slate-300 font-medium bg-[#0a0b0f]/50 p-3.5 rounded-2xl border border-white/5">
-                    <School className="w-5 h-5 text-blue-400" />
-                    <span className="text-sm">{user?.university || 'Unknown Node'}</span>
+                  <div className="flex items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-slate-300">
+                    <School className="h-4 w-4 text-blue-300" />
+                    <span className="max-w-[240px] truncate text-xs sm:text-sm">{user?.university || 'University not set'}</span>
                   </div>
                 </motion.div>
               ) : (
@@ -266,7 +266,7 @@ const Profile = () => {
         </div>
       </motion.section>
 
-      <nav aria-label="Profile sections" className="glass sticky top-[76px] z-20 flex gap-1 overflow-x-auto rounded-xl p-1.5">
+      <nav aria-label="Profile sections" className="glass sticky top-[72px] z-20 flex gap-1 overflow-x-auto rounded-xl p-1">
         {[
           ['overview', 'Overview'],
           ['notes', 'My notes'],
@@ -278,7 +278,7 @@ const Profile = () => {
             key={id}
             href={`#${id}`}
             onClick={() => setActiveTab(id)}
-            className={`relative shrink-0 rounded-lg px-3.5 py-2 text-xs font-medium transition sm:text-sm ${activeTab === id ? 'text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`relative shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition ${activeTab === id ? 'text-white' : 'text-slate-400 hover:text-white'}`}
           >
             {activeTab === id && <motion.span layoutId="profile-tab-active" className="absolute inset-0 rounded-lg border border-white/[0.08] bg-white/[0.06]" />}
             <span className="relative">{label}</span>
@@ -287,30 +287,30 @@ const Profile = () => {
       </nav>
 
       {/* Telemetry Row */}
-      <motion.div variants={{ show: { transition: { staggerChildren: 0.1 } } }} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+      <motion.div variants={{ show: { transition: { staggerChildren: 0.08 } } }} initial="hidden" animate="show" className="grid grid-cols-1 gap-3 md:grid-cols-3">
          <ProfileStat variants={fadeUp} icon={<BookOpen className="text-blue-400" />} label="Archive" value={myNotes.length} />
          <ProfileStat variants={fadeUp} icon={<Heart className="text-rose-400" />} label="Impact" value={totalLikes} />
          <ProfileStat variants={fadeUp} icon={<Calendar className="text-teal-400" />} label="Class year" value={user?.year || '—'} />
       </motion.div>
 
       {/* Database View */}
-      <div id="notes" className="scroll-mt-28 pt-8">
-        <div className="flex items-center justify-between mb-10 border-b border-white/5 pb-6">
-           <h3 className="text-3xl font-semibold text-white tracking-tight flex items-center gap-4">
-              <div className="p-2 bg-blue-500/20 rounded-xl">
-                 <FileText className="w-6 h-6 text-blue-400" />
+      <div id="notes" className="scroll-mt-28 pt-4">
+        <div className="mb-5 flex items-center justify-between border-b border-white/[0.07] pb-4">
+           <h3 className="flex items-center gap-3 text-xl font-semibold tracking-tight text-white sm:text-2xl">
+              <div className="rounded-lg bg-blue-500/10 p-2">
+                 <FileText className="h-4 w-4 text-blue-300" />
               </div>
               Personal Repository
            </h3>
         </div>
 
         {loadingNotes ? (
-          <div className="h-64 flex flex-col items-center justify-center gap-4">
+          <div className="flex min-h-44 flex-col items-center justify-center gap-3">
              <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
              <span className="text-slate-500 font-bold uppercase tracking-widest text-xs">Syncing...</span>
           </div>
         ) : myNotes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {myNotes.map(note => (
               <NoteCard
                 key={note.id}
@@ -323,20 +323,21 @@ const Profile = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-[#101218]/40 border border-white/5 rounded-3xl p-16 md:p-24 text-center">
-             <div className="w-20 h-20 bg-white/5 flex items-center justify-center rounded-full mx-auto mb-6">
-               <FileText className="h-7 w-7 text-slate-400" />
+          <div className="glass rounded-2xl p-8 text-center sm:p-10">
+             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04]">
+               <FileText className="h-5 w-5 text-slate-400" />
              </div>
-             <p className="text-slate-400 font-bold text-xl mb-2">Database Empty</p>
-             <p className="text-slate-500 font-medium mb-8 max-w-sm mx-auto">You have not initialized any records in the network. Start archiving your knowledge.</p>
+             <p className="mb-1 text-base font-semibold text-white">No notes yet</p>
+             <p className="mx-auto mb-5 max-w-sm text-sm text-slate-400">Upload your first course note to start building your library.</p>
+             <a href="/create" className="btn-primary inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium"><FileText className="h-4 w-4" /> Upload a note</a>
           </div>
         )}
       </div>
 
       {/* Danger Zone */}
-      <div id="settings" className="scroll-mt-28 mt-16 pt-8 border-t border-rose-500/10">
-        <h4 className="text-rose-500 font-semibold text-xl mb-4 flex items-center gap-2"><AlertTriangle className="w-5 h-5"/> Danger Zone</h4>
-        <div className="bg-rose-500/5 border border-rose-500/20 rounded-3xl p-6 lg:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div id="settings" className="scroll-mt-28 mt-10 border-t border-rose-500/10 pt-6">
+        <h4 className="mb-3 flex items-center gap-2 text-base font-semibold text-rose-300"><AlertTriangle className="h-4 w-4"/> Danger zone</h4>
+        <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-rose-500/15 bg-rose-500/[0.035] p-4 sm:flex-row sm:items-center">
           <div>
             <p className="text-white font-bold mb-1">Delete Account</p>
             <p className="text-slate-400 text-sm font-medium">Permanently remove your account, profile, and all associated data from the network. This action cannot be undone.</p>
@@ -397,11 +398,11 @@ const Profile = () => {
       />
 
       {/* Download History Section */}
-      <div id="downloads" className="scroll-mt-28 mt-10 border-t border-white/5 pt-20">
-        <div className="flex items-center justify-between mb-10">
-           <h3 className="text-3xl font-semibold text-white tracking-tight flex items-center gap-4">
-              <div className="p-2 bg-teal-500/20 rounded-xl">
-                 <Clock className="w-6 h-6 text-teal-400" /> 
+      <div id="downloads" className="scroll-mt-28 mt-8 border-t border-white/[0.07] pt-8">
+        <div className="mb-5 flex items-center justify-between">
+           <h3 className="flex items-center gap-3 text-xl font-semibold tracking-tight text-white sm:text-2xl">
+              <div className="rounded-lg bg-teal-500/10 p-2">
+                 <Clock className="h-4 w-4 text-teal-300" />
               </div>
               Download History
            </h3>
@@ -418,13 +419,13 @@ const Profile = () => {
                 key={dl.id}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-[#101218]/60 backdrop-blur-md p-5 rounded-3xl border border-white/5 flex items-center gap-5 hover:bg-white/5 transition-all group"
+                className="glass-card flex items-center gap-3 rounded-xl p-3.5"
               >
-                <div className="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                   <Download className="w-5 h-5 text-teal-400" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-teal-500/20 bg-teal-500/10">
+                   <Download className="h-4 w-4 text-teal-300" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-white font-bold truncate">{dl.note_title}</h4>
+                  <h4 className="truncate text-sm font-medium text-white">{dl.note_title}</h4>
                   <div className="flex items-center flex-wrap gap-x-4 gap-y-1 mt-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{dl.note_subject || 'General'}</span>
                     <span className="text-[10px] text-blue-400 font-bold uppercase tracking-widest">@{dl.note_uploader || 'Student'}</span>
@@ -437,20 +438,20 @@ const Profile = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-[#101218]/40 border border-dashed border-white/10 rounded-2xl p-12 text-center">
-             <Clock className="w-12 h-12 text-slate-700 mx-auto mb-4" />
-             <h4 className="text-xl font-bold text-slate-500">No downloads yet</h4>
-             <p className="text-slate-600 mt-1">Start building your collection today.</p>
+          <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center">
+             <Clock className="mx-auto mb-3 h-6 w-6 text-slate-600" />
+             <h4 className="text-sm font-medium text-slate-300">No downloads yet</h4>
+             <p className="mt-1 text-xs text-slate-500">Downloaded notes will appear here.</p>
           </div>
         )}
       </div>
 
       {/* Notification Center Section */}
-      <div id="notifications" className="scroll-mt-28 mt-10 border-t border-white/5 pb-20 pt-20">
-        <div className="flex items-center justify-between mb-10">
-           <h3 className="text-3xl font-semibold text-white tracking-tight flex items-center gap-4">
-              <div className="p-2 bg-rose-500/20 rounded-xl">
-                 <Bell className="w-6 h-6 text-rose-400" /> 
+      <div id="notifications" className="scroll-mt-28 mt-8 border-t border-white/[0.07] pb-8 pt-8">
+        <div className="mb-5 flex items-center justify-between">
+           <h3 className="flex items-center gap-3 text-xl font-semibold tracking-tight text-white sm:text-2xl">
+              <div className="rounded-lg bg-rose-500/10 p-2">
+                 <Bell className="h-4 w-4 text-rose-300" />
               </div>
               Notification Center
            </h3>
@@ -469,13 +470,13 @@ const Profile = () => {
                        key={notif.id}
                        initial={{ opacity: 0, scale: 0.98 }}
                        animate={{ opacity: 1, scale: 1 }}
-                       className="bg-[#101218]/40 backdrop-blur-md p-6 rounded-2xl border border-white/5 flex items-center gap-6 hover:bg-white/5 transition-all group"
+                       className="glass-card flex items-center gap-3 rounded-xl p-4"
                     >
-                       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform ${isComment ? 'bg-blue-500/10 border border-blue-500/20' : 'bg-rose-500/10 border border-rose-500/20'}`}>
+                       <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${isComment ? 'bg-blue-500/10 text-blue-300' : 'bg-rose-500/10 text-rose-300'}`}>
                           {isComment ? (
-                            <MessageSquare className="w-5 h-5 text-blue-400 fill-blue-400" />
+                            <MessageSquare className="h-4 w-4" />
                           ) : (
-                            <Heart className="w-5 h-5 text-rose-400 fill-rose-400" />
+                            <Heart className="h-4 w-4" />
                           )}
                        </div>
                        <div className="flex-1">
@@ -504,13 +505,13 @@ const Profile = () => {
 };
 
 const ProfileStat = ({ icon, label, value, variants }) => (
-  <motion.div variants={variants} className="bg-[#101218]/60 backdrop-blur-md p-6 lg:p-8 rounded-2xl border border-white/5 shadow-xl flex flex-col items-center text-center gap-3 hover:bg-white/5 transition-colors group">
-     <div className="p-4 bg-[#0a0b0f] rounded-2xl border border-white/5 shadow-inner group-hover:scale-110 transition-transform">
+  <motion.div variants={variants} className="bg-[#101218]/60 backdrop-blur-md p-4 rounded-2xl border border-white/5 shadow-xl flex flex-col items-center text-center gap-2 hover:bg-white/5 transition-colors group">
+     <div className="p-2.5 bg-[#0a0b0f] rounded-xl border border-white/5 shadow-inner group-hover:scale-105 transition-transform">
         {icon}
      </div>
      <div className="space-y-1">
-       <p className="text-3xl font-semibold text-white">{value}</p>
-       <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{label}</p>
+       <p className="text-xl font-semibold text-white">{value}</p>
+       <p className="text-[11px] font-medium text-slate-500">{label}</p>
      </div>
   </motion.div>
 );
